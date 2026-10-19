@@ -1,0 +1,23 @@
+# Segredos e ambiente local
+.env
+.env.*
+!.env.example
+
+# Go
+/bin/
+/dist/
+*.test
+*.out
+coverage.*
+
+# SQLite local (o do cluster vive no volume /data)
+*.db
+*.db-shm
+*.db-wal
+/data/
+
+# Ferramentas
+.idea/
+.vscode/
+.DS_Store
+graphify-out/
