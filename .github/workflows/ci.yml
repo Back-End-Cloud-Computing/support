@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: gofmt · vet · test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Enquanto não existir go.mod (código ainda não começou), os passos são pulados e o CI fica verde.
+      - uses: actions/setup-go@v5
+        if: hashFiles('go.mod') != ''
+        with:
+          go-version-file: go.mod
+
+      - name: gofmt
+        if: hashFiles('go.mod') != ''
+        run: test -z "$(gofmt -l .)" || { gofmt -l .; exit 1; }
+
+      - name: go vet
+        if: hashFiles('go.mod') != ''
+        run: go vet ./...
+
+      - name: Testes
+        if: hashFiles('go.mod') != ''
+        run: go test ./...
+
+      - name: Build da imagem Docker
+        if: hashFiles('Dockerfile') != ''
+        run: docker build -t support .
+
+  publish:
+    name: Publicar imagem (GHCR)
+    needs: check
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && hashFiles('Dockerfile') != ''
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login no GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build e push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/back-end-cloud-computing/support:latest
+            ghcr.io/back-end-cloud-computing/support:sha-${{ github.sha }}
