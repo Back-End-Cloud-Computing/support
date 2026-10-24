@@ -1,0 +1,87 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: support
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: support
+  template:
+    metadata:
+      labels:
+        app: support
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8090"
+        prometheus.io/path: /metrics
+    spec:
+      securityContext:
+        fsGroup: 10001
+      containers:
+        - name: support
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          ports:
+            - containerPort: 8090
+          env:
+            - name: INTERNAL_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ required "existingSecret é obrigatório" .Values.existingSecret }}
+                  key: internal-secret
+            - name: DB_PATH
+              value: /data/support.db
+            - name: SMTP_HOST
+              value: {{ .Values.smtpHost | quote }}
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 10001
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 8090
+            failureThreshold: 30
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8090
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8090
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: support-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: support
+spec:
+  selector:
+    app: support
+  ports:
+    - port: 8090
+      targetPort: 8090
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: support-data
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: {{ .Values.storage }}

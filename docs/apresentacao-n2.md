@@ -31,7 +31,7 @@ R3 apresentação técnica (3,0). Este roteiro cobre a parte do suporte; a ordem
 - E se o suporte cair? O `order` continua criando pedidos; sem fila, o aviso daquela chamada se perde (RabbitMQ resolve com reentrega).
 - Dá para ter duas réplicas? Não com SQLite; Postgres é o caminho.
 - Como garante que não manda e-mail duplicado? `event_id` como chave primária.
-- Por que Go? Stack provisória, do mesmo autor do `client`; o contrato independe da linguagem.
+- Por que Java? Spring Boot alinha a stack ao authorization; Spring Mail e Micrometer atendem SMTP e observabilidade, com SQLite persistente para a única réplica.
 
 ## Antes do dia
 

@@ -18,8 +18,8 @@ Futuro: o mesmo tratamento chega por RabbitMQ ([rabbitmq.md](rabbitmq.md)).
 1. Valida `x-internal-secret` (comparação em tempo constante). Falhou: 403.
 2. Valida o payload (campos obrigatórios, e-mail, `event_type` suportado, telefone em formato E.164 se vier). Falhou: 400.
 3. Tenta inserir `event_id` em `events` (chave primária). Já existe: responde 202 com `duplicate: true`, sem enviar nada.
-4. Responde **202** e processa em goroutine, para o `order` não esperar o SMTP.
-5. Para cada canal aplicável, monta a mensagem, envia com até 3 tentativas (espera 1 s, 2 s, 4 s) e grava em `deliveries`
+4. Responde **202** e processa em worker Java, para o `order` não esperar o SMTP.
+5. Para cada canal aplicável, monta a mensagem, envia com até 3 tentativas (espera 1 s e 2 s entre as três tentativas) e grava em `deliveries`
    `sent`, `failed` (com erro) ou `skipped` (sem dado para o canal).
 6. Atualiza as métricas e o log JSON (com `correlation_id`).
 
@@ -58,11 +58,11 @@ Arquivo em volume (`/data`); no K8s, PVC de 100 Mi. Migrations simples executada
 
 ## Canais e adapters
 
-```go
-type Notifier interface {
-    Channel() string                               // "email" | "sms" | "whatsapp"
-    Provider() string                              // "smtp" | "fake" | ...
-    Send(ctx context.Context, msg Message) error
+```java
+public interface Notifier {
+    String channel();
+    String provider();
+    void send(Message message) throws Exception;
 }
 ```
 
@@ -101,12 +101,10 @@ Textos (pt-BR), para `OrderCreated`:
 Painel do Grafana: eventos por resultado, envios por canal e status, p95 de envio. Exportado em JSON em
 `k8s/observability/`.
 
-## Estrutura de código (provisória)
+## Estrutura de código
 
 ```
-cmd/support/main.go        # monta config, banco, adapters, servidor
-internal/config/           # lê e valida o ambiente
-internal/httpapi/          # handlers, middleware de segredo, métricas
-internal/notify/           # Notifier, Message, email.go, sms_fake.go, whatsapp_fake.go, dispatcher.go
-internal/store/            # SQLite: events, deliveries
+src/main/java/com/ganjj/support/  # API, config, store, dispatcher e adapters
+src/main/resources/              # configuração Spring
+src/test/java/com/ganjj/support/  # JUnit e HTTP real
 ```

@@ -14,7 +14,7 @@ troca seja mecânica quando os demais repos terminarem.
 | Dead letter | `support.order-created.dlq`, após 3 falhas de processamento |
 | Corpo | o **mesmo JSON** do [contrato HTTP](contrato-api.md) (`OrderCreated`) |
 | Publicador | `order` (quando o pedido é criado) |
-| Consumidor | `support`, em goroutine própria dentro do mesmo processo |
+| Consumidor | `support`, em worker Java próprio dentro do mesmo processo |
 
 ## Comportamento do consumidor
 

@@ -15,7 +15,7 @@ Cada fase é entregável sozinha e ancorada numa data da disciplina. Data deste 
 
 ## Por fase: pronto quando
 
-- **1:** `go test ./...` verde; `curl` local do exemplo do contrato retorna 202 e o log mostra os três canais.
+- **1:** `./mvnw verify` verde; `curl` local do exemplo do contrato retorna 202 e o log mostra os três canais.
 - **2:** e-mail aparece na UI do Mailpit no cluster; pod reiniciado mantém o histórico (volume).
 - **3:** `helm install` sobe o mesmo estado que `kubectl apply -k k8s/`.
 - **4:** painel mostra envios por canal e status durante a demo.

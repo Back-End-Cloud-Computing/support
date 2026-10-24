@@ -16,7 +16,7 @@ Escrita para ser lida na ordem abaixo. Fluxo de trabalho: pergunta, decisão, do
 | [Integração](integration-issues.md) | Dependências dos outros serviços e riscos |
 | [Convenções](convencoes.md) | Commits, branches, PRs, autoria, idioma |
 | [Roteiro N2](apresentacao-n2.md) | Demonstração, decisões para defender, perguntas prováveis |
-| ADRs | [0001 Go provisório](adr/0001-go-provisorio.md) · [0002 HTTP antes de RabbitMQ](adr/0002-http-antes-de-rabbitmq.md) · [0003 SQLite](adr/0003-sqlite.md) · [0004 Canais por adapter](adr/0004-canais-por-adapter.md) · [0005 Destinatário no payload](adr/0005-destinatario-no-payload.md) |
+| ADRs | [0001 Go provisório (substituído)](adr/0001-go-provisorio.md) · [0002 HTTP antes de RabbitMQ](adr/0002-http-antes-de-rabbitmq.md) · [0003 SQLite](adr/0003-sqlite.md) · [0004 Canais por adapter](adr/0004-canais-por-adapter.md) · [0005 Destinatário no payload](adr/0005-destinatario-no-payload.md) · [0006 Java/Spring Boot](adr/0006-java-spring-boot.md) |
 
 ## Datas que não se movem
 
@@ -31,6 +31,6 @@ observabilidade (3,0) · R3 apresentação técnica (3,0).
 
 ## Pendências fora do código
 
-- [ ] Eduardo confirmar a stack (Go provisório) e assumir o repositório.
+- [x] Stack Java 21/Spring Boot confirmada por Eduardo em 24/10 (ADR 0006).
 - [ ] Rodrigo (`order`) combinar o payload e o segredo interno ([SUP-001](integration-issues.md)).
 - [ ] Conta `bascratki` no Docker Hub com o repositório `support` público.

@@ -13,8 +13,8 @@ deixa o caminho para trocar por APIs reais sem mexer no resto do serviço.
 ## Passos para ligar um provedor real
 
 1. Escolher o provedor (candidatos abaixo) e abrir conta de teste/sandbox.
-2. Criar o adapter em `internal/notify/<provedor>_sms.go` (e `_whatsapp.go`) implementando `Notifier`.
-3. Registrar o nome do provedor na lista aceita pela configuração (`internal/config`).
+2. Criar o adapter em `src/main/java/com/ganjj/support/` implementando `Notifier`.
+3. Registrar o nome do provedor na lista aceita pela configuração (`SupportConfig`).
 4. Colocar credenciais em **Secret** do Kubernetes (nunca em ConfigMap, nunca no repo) e documentar as
    variáveis no `.env.example` sem valores.
 5. Teste do adapter contra um servidor HTTP falso (sem chamar o provedor); depois um envio manual em sandbox.
