@@ -4,8 +4,7 @@ Microsserviço de notificações: recebe um evento de negócio (hoje, pedido cri
 e-mail, SMS e WhatsApp. É o "microsserviço de suporte" exigido pelo enunciado do professor.
 
 - **Dono:** Eduardo (`eduardofabrii`)
-- **Stack provisória:** Go + SQLite. O Lucas montou a estrutura inicial; o Eduardo pode trocar a stack
-  (o professor aceita qualquer uma), desde que o [contrato](docs/contrato-api.md) continue o mesmo.
+- **Stack:** Java 21 + Spring Boot + SQLite, escolhida por Eduardo ([ADR 0006](docs/adr/0006-java-spring-boot.md)).
 - **Porta:** 8090 · **Sem Ingress** (só Service interno, chamado direto pelo `order`)
 - **Prazo:** apresentação N2 em 10/11/2026
 
@@ -40,8 +39,8 @@ Comece por [`docs/README.md`](docs/README.md).
 
 ```bash
 cp .env.example .env
-go test ./...
-go run ./cmd/support     # http://localhost:8090
+./mvnw verify
+./mvnw spring-boot:run     # http://localhost:8090
 ```
 
 Mailpit (caixa de e-mail de teste): `docker run -p 8025:8025 -p 1025:1025 axllent/mailpit`, UI em `http://localhost:8025`.
@@ -50,3 +49,19 @@ Mailpit (caixa de e-mail de teste): `docker run -p 8025:8025 -p 1025:1025 axllen
 
 Commits em Conventional Commits, PR por mudança, autor único. Ver [`docs/convencoes.md`](docs/convencoes.md).
 Depois de clonar: `lefthook install`.
+
+## Entrega e operação
+
+`./mvnw verify` executa build, análise do compilador e testes JUnit. Copie `.env.example` para `.env`; Spring importa esse arquivo local. Não versione `.env`. Para persistência local, use `DB_PATH=./data/support.db`.
+
+O worker consulta eventos persistidos a cada 250 ms e grava o resultado por canal. Notificações aceitas antes de um reinício continuam pendentes no SQLite. Consulte os limites de entrega no ADR 0006.
+
+Veja [Kubernetes](k8s/README.md), [Helm](helm/support/README.md), [dashboard](k8s/observability/README.md) e [estado N2](docs/n2-status.md). O workflow CI publica no GHCR ao entrar em `main`; a release manual Docker Hub requer secrets de Actions com acesso a `eduardofabri/support`.
+
+Com o serviço e o Mailpit no ar, execute `INTERNAL_SECRET=... python3 scripts/smoke-test.py`. `SUPPORT_URL` e `MAILPIT_URL` permitem usar portas diferentes. O teste usa destinatário fictício e deve apontar para o Mailpit de teste.
+
+## Validação de 25/10/2026
+
+Instalações Helm e Kustomize exercitadas em Minikube; imagem pública `eduardofabri/support:1.0.1` com AMD64/ARM64. O pedido do order real chegou ao Mailpit e o PVC preservou o histórico após recriar o pod. Scripts reproduzíveis e fixtures identificadas em `scripts/n2/`; capturas e resultados sem tokens em `docs/evidence/2026-10-25/`.
+
+Consumidor RabbitMQ ativado por `AMQP_URL`. Canais `twilio` disponíveis por configuração, com requisitos e limites em `docs/canais-reais.md`. Nenhum envio real Twilio foi realizado por falta de conta; `fake` continua padrão.

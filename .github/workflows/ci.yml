@@ -1,75 +1,61 @@
 name: CI
-
 on:
   pull_request:
   push:
     branches: [main]
-
-concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: true
-
 permissions:
   contents: read
-
 jobs:
-  check:
-    name: gofmt · vet · test
+  verify:
     runs-on: ubuntu-latest
-
+    services:
+      rabbitmq:
+        image: rabbitmq:4.1-alpine
+        env:
+          RABBITMQ_DEFAULT_USER: ganjj-test
+          RABBITMQ_DEFAULT_PASS: ganjj-test-only
+        ports:
+          - 5672:5672
+        options: >-
+          --health-cmd "rabbitmq-diagnostics -q ping"
+          --health-interval 10s --health-timeout 5s --health-retries 10
+    env:
+      SUPPORT_AMQP_TEST_URL: amqp://ganjj-test:ganjj-test-only@localhost:5672
     steps:
       - uses: actions/checkout@v4
-
-      # Enquanto não existir go.mod (código ainda não começou), os passos são pulados e o CI fica verde.
-      - uses: actions/setup-go@v5
-        if: hashFiles('go.mod') != ''
+      - name: Scan repository for secrets
+        run: docker run --rm -v "$PWD:/repo:ro" zricethezav/gitleaks:v8.24.2 detect --source=/repo --no-banner --redact
+      - uses: actions/setup-java@v4
         with:
-          go-version-file: go.mod
-
-      - name: gofmt
-        if: hashFiles('go.mod') != ''
-        run: test -z "$(gofmt -l .)" || { gofmt -l .; exit 1; }
-
-      - name: go vet
-        if: hashFiles('go.mod') != ''
-        run: go vet ./...
-
-      - name: Testes
-        if: hashFiles('go.mod') != ''
-        run: go test ./...
-
-      - name: Build da imagem Docker
-        if: hashFiles('Dockerfile') != ''
-        run: docker build -t support .
-
-  publish:
-    name: Publicar imagem (GHCR)
-    needs: check
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: Compile, analyze and test
+        run: ./mvnw -B -ntp verify
+      - run: docker build -t support:ci .
+  publish-ghcr:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: verify
     runs-on: ubuntu-latest
-
     permissions:
       contents: read
       packages: write
-
     steps:
       - uses: actions/checkout@v4
-
-      # hashFiles só funciona em passos, não no if do job; sem Dockerfile os passos abaixo são pulados.
-      - name: Login no GHCR
-        if: hashFiles('Dockerfile') != ''
-        uses: docker/login-action@v3
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build e push
-        if: hashFiles('Dockerfile') != ''
-        uses: docker/build-push-action@v6
+      - name: Compute lowercase image name
+        id: image
+        shell: bash
+        run: echo "name=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+      - uses: docker/build-push-action@v6
         with:
           context: .
           push: true
-          tags: |
-            ghcr.io/back-end-cloud-computing/support:latest
-            ghcr.io/back-end-cloud-computing/support:sha-${{ github.sha }}
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ steps.image.outputs.name }}:${{ github.sha }}

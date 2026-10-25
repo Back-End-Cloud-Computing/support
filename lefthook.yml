@@ -1,27 +1,13 @@
-# Guarda local antes do commit. Depois de clonar: lefthook install
-# Pular uma vez: LEFTHOOK=0 git commit
 pre-commit:
   parallel: true
   commands:
     gitleaks:
       run: gitleaks protect --staged --no-banner
-    gofmt:
-      glob: '*.go'
-      run: test -z "$(gofmt -l {staged_files})" || { gofmt -l {staged_files}; echo "Rode gofmt -w nos arquivos acima"; exit 1; }
-
-# Conventional Commits do projeto: tipo(escopo): resumo, com descrição no corpo.
-# Escopo obrigatório e corpo obrigatório; detalhes em docs/convencoes.md.
+    java:
+      run: ./mvnw -B -ntp verify
 commit-msg:
   commands:
     conventional:
       run: |
-        head -1 {1} | grep -qE '^(feat|fix|refactor|perf|test|docs|build|ci|chore|style|revert)\([a-z0-9-]+\)!?: .{1,72}$' || {
-          echo "Mensagem fora do padrão: tipo(escopo): resumo"
-          echo "Tipos: feat fix refactor perf test docs build ci chore style revert"
-          echo "Exemplo: feat(notify): envia e-mail por SMTP com 3 tentativas"
-          exit 1
-        }
-        sed -n '2,$p' {1} | grep -qE '[^[:space:]]' || {
-          echo "Falta a descrição (corpo) depois do resumo: explique o porquê da mudança."
-          exit 1
-        }
+        head -1 {1} | grep -qE '^(feat|fix|refactor|perf|test|docs|build|ci|chore|style|revert)\([a-z0-9-]+\)!?: .{1,72}$' || exit 1
+        sed -n '2,$p' {1} | grep -qE '[^[:space:]]' || exit 1

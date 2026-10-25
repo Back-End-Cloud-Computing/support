@@ -1,0 +1,118 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: support
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: support
+  template:
+    metadata:
+      labels:
+        app: support
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8090"
+        prometheus.io/path: /metrics
+    spec:
+      securityContext:
+        fsGroup: 10001
+      containers:
+        - name: support
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          ports:
+            - containerPort: 8090
+          env:
+            - name: INTERNAL_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ required "existingSecret é obrigatório" .Values.existingSecret }}
+                  key: internal-secret
+            - name: SMS_PROVIDER
+              value: {{ .Values.channels.sms | quote }}
+            - name: WHATSAPP_PROVIDER
+              value: {{ .Values.channels.whatsapp | quote }}
+            {{- if or (eq .Values.channels.sms "twilio") (eq .Values.channels.whatsapp "twilio") }}
+            - name: TWILIO_ACCOUNT_SID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.twilio.existingSecret }}
+                  key: account-sid
+            - name: TWILIO_AUTH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.twilio.existingSecret }}
+                  key: auth-token
+            - name: TWILIO_SMS_FROM
+              value: {{ .Values.twilio.smsFrom | quote }}
+            - name: TWILIO_WHATSAPP_FROM
+              value: {{ .Values.twilio.whatsappFrom | quote }}
+            - name: TWILIO_WHATSAPP_CONTENT_SID
+              value: {{ .Values.twilio.whatsappContentSid | quote }}
+            {{- end }}
+            - name: AMQP_URL
+              valueFrom:
+                secretKeyRef:
+                  name: support-credentials
+                  key: amqp-url
+                  optional: true
+            - name: DB_PATH
+              value: /data/support.db
+            - name: SMTP_HOST
+              value: {{ .Values.smtpHost | quote }}
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 10001
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          startupProbe:
+            timeoutSeconds: 5
+            httpGet:
+              path: /health
+              port: 8090
+            failureThreshold: 30
+            periodSeconds: 5
+          readinessProbe:
+            timeoutSeconds: 5
+            httpGet:
+              path: /health/ready
+              port: 8090
+          livenessProbe:
+            timeoutSeconds: 5
+            httpGet:
+              path: /health
+              port: 8090
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: support-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: support
+spec:
+  selector:
+    app: support
+  ports:
+    - port: 8090
+      targetPort: 8090
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: support-data
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: {{ .Values.storage }}

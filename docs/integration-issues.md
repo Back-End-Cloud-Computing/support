@@ -14,7 +14,7 @@ Nos repos dos colegas só se abre issue; nada é editado neles.
 | SUP-005 | SMS e WhatsApp reais | provedor externo | Planejado em [canais-reais.md](canais-reais.md) | Não |
 | SUP-006 | Suporte fora do API Gateway | `api-gateway` | Decidido: o `order` chama `support:8090` direto | Não |
 | SUP-007 | SQLite limita a 1 réplica | este repo | Aceito no [ADR 0003](adr/0003-sqlite.md) | Não |
-| SUP-008 | Stack provisória | Eduardo | Go montado pelo Lucas; Eduardo confirma ou troca | Não |
+| SUP-008 | Stack provisória | Eduardo | Java 21/Spring Boot confirmado por Eduardo em 24/10 (ADR 0006) | Não |
 
 ## Detalhes
 

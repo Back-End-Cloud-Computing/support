@@ -1,0 +1,15 @@
+{
+  "image": "eduardofabri/support:1.0.1",
+  "digest": "sha256:2f3bda91ef11afe668d2723636da0ea9515f50472ade8ab8937ac2336b0f9e37",
+  "platforms": [
+    {
+      "architecture": "amd64",
+      "os": "linux"
+    },
+    {
+      "architecture": "arm64",
+      "os": "linux"
+    }
+  ],
+  "public_anonymous_pull": true
+}

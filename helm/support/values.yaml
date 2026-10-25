@@ -1,0 +1,28 @@
+image:
+  repository: eduardofabri/support
+  tag: "1.0.1"
+existingSecret: support-credentials
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: "1"
+    memory: 512Mi
+storage: 100Mi
+mailpit:
+  enabled: true
+  image: axllent/mailpit:v1.27.8
+smtpHost: mailpit
+
+channels:
+  sms: fake
+  whatsapp: fake
+twilio:
+  existingSecret: support-twilio
+  smsFrom: ""
+  whatsappFrom: ""
+  whatsappContentSid: ""
+rabbitmq:
+  enabled: false
+  existingSecret: rabbitmq-credentials

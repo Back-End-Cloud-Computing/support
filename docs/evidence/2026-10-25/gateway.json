@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-25",
+  "real_services": [
+    "api-gateway",
+    "authorization",
+    "client"
+  ],
+  "fixtures": [
+    "product-api",
+    "shopping-cart"
+  ],
+  "checks": {
+    "login": 200,
+    "client-profile": 200,
+    "no-token": 401,
+    "refresh-as-access": 401,
+    "fixture-products": 200
+  }
+}

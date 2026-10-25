@@ -1,12 +1,10 @@
 # Testes — Serviço de Suporte
 
-Teste primeiro: estes casos existem antes do código. Ferramenta provisória: `go test` com testes de tabela,
-`httptest` para a API, SQLite em arquivo temporário (`t.TempDir()`), SMTP falso (servidor TCP local mínimo ou
-interface `Notifier` com dublê) e adapters fake que registram chamadas. Sem rede externa.
+A matriz abaixo define o contrato, implementado em Java 21/Spring Boot. `SupportTest` usa HTTP real em porta aleatória, JUnit, SQLite em diretório temporário e adapters controlados para simular falhas sem rede externa. O smoke test com Mailpit verifica SMTP real.
 
 ## Casos
 
-### API (`internal/httpapi`)
+### API (`NotificationController` e `InternalSecretFilter`)
 
 | # | Dado | Então |
 |---|---|---|
@@ -23,7 +21,7 @@ interface `Notifier` com dublê) e adapters fake que registram chamadas. Sem red
 | H11 | `GET /internal/notifications/{id}` desconhecido | 404 |
 | H12 | `GET /health` e `GET /health/ready` | 200; `ready` com banco indisponível: 503 |
 
-### Despacho (`internal/notify`)
+### Despacho (`Dispatcher` e `Channels`)
 
 | # | Dado | Então |
 |---|---|---|
@@ -34,7 +32,7 @@ interface `Notifier` com dublê) e adapters fake que registram chamadas. Sem red
 | D5 | Texto do e-mail | assunto `Pedido GANJJ-000007 confirmado`; total `R$ 1.234,56` |
 | D6 | Texto do SMS | até 160 caracteres, mesmo com código de pedido longo |
 
-### Configuração (`internal/config`)
+### Configuração (`SupportConfig`)
 
 | # | Dado | Então |
 |---|---|---|
@@ -42,7 +40,7 @@ interface `Notifier` com dublê) e adapters fake que registram chamadas. Sem red
 | C2 | `SMS_PROVIDER=desconhecido` | erro ao iniciar, nomeando a variável |
 | C3 | `SMS_PROVIDER=fake` | adapter fake selecionado |
 
-### Armazenamento (`internal/store`)
+### Armazenamento (`NotificationStore`)
 
 | # | Dado | Então |
 |---|---|---|
@@ -63,4 +61,4 @@ No cluster: mesma chamada com `kubectl port-forward svc/support 8090`. Checklist
 
 ## Como rodar
 
-`go test ./...` localmente e no CI. Cobertura não é meta; os casos acima são.
+`./mvnw verify` localmente e no CI. Cobertura não é meta; os casos acima são.

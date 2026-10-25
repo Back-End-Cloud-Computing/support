@@ -20,5 +20,5 @@ após reinício).
 ## Consequências
 
 - Uma réplica só: SQLite em arquivo não é compartilhado com segurança entre pods. Estratégia de atualização `Recreate`.
-- Upgrade para Postgres é local à camada `internal/store`; a interface não muda.
+- Upgrade para Postgres é local à camada `NotificationStore`; a interface não muda.
 - Backup e retenção fora de escopo na N2.

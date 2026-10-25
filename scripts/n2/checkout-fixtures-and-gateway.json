@@ -1,0 +1,189 @@
+{
+  "apiVersion": "v1",
+  "kind": "List",
+  "items": [
+    {
+      "apiVersion": "v1",
+      "kind": "ConfigMap",
+      "metadata": {
+        "name": "checkout-fixtures"
+      },
+      "data": {
+        "server.py": "from http.server import BaseHTTPRequestHandler,HTTPServer\nimport json\nclass Handler(BaseHTTPRequestHandler):\n def do_GET(self):\n  if self.path==\"/api/cesta\": data={\"itens\":[{\"produto_id\":1,\"nome\":\"Produto fixture N2\",\"quantidade\":1,\"preco\":123.45,\"tamanho\":\"M\",\"imagem_url\":None}]}\n  elif self.path==\"/products\":data=[]\n  else:data={\"status\":\"fixture\"}\n  self.send_response(200);self.send_header(\"Content-Type\",\"application/json\");self.end_headers();self.wfile.write(json.dumps(data).encode())\n def do_POST(self):\n  self.rfile.read(int(self.headers.get(\"Content-Length\",0)));self.send_response(200);self.send_header(\"Content-Type\",\"application/json\");self.end_headers();self.wfile.write(b'{\"status\":\"ok\"}')\nHTTPServer((\"0.0.0.0\",8080),Handler).serve_forever()\n"
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {
+        "name": "checkout-fixtures"
+      },
+      "spec": {
+        "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "app": "checkout-fixtures"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "app": "checkout-fixtures"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "fixture",
+                "image": "python:3.13-alpine",
+                "command": [
+                  "python",
+                  "/fixtures/server.py"
+                ],
+                "ports": [
+                  {
+                    "containerPort": 8080
+                  }
+                ],
+                "volumeMounts": [
+                  {
+                    "name": "code",
+                    "mountPath": "/fixtures"
+                  }
+                ]
+              }
+            ],
+            "volumes": [
+              {
+                "name": "code",
+                "configMap": {
+                  "name": "checkout-fixtures"
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "metadata": {
+        "name": "shopping-cart"
+      },
+      "spec": {
+        "selector": {
+          "app": "checkout-fixtures"
+        },
+        "ports": [
+          {
+            "port": 3003,
+            "targetPort": 8080
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "metadata": {
+        "name": "product-api"
+      },
+      "spec": {
+        "selector": {
+          "app": "checkout-fixtures"
+        },
+        "ports": [
+          {
+            "port": 8000,
+            "targetPort": 8080
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {
+        "name": "api-gateway"
+      },
+      "spec": {
+        "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "app": "api-gateway"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "app": "api-gateway"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "gateway",
+                "image": "ganjj-api-gateway:validation",
+                "imagePullPolicy": "Never",
+                "env": [
+                  {
+                    "name": "AUTH_BASE_URL",
+                    "value": "http://authorization:8081"
+                  },
+                  {
+                    "name": "CLIENT_URL",
+                    "value": "http://client:8082"
+                  },
+                  {
+                    "name": "ORDER_URL",
+                    "value": "http://order:8080"
+                  },
+                  {
+                    "name": "CART_URL",
+                    "value": "http://shopping-cart:3003"
+                  },
+                  {
+                    "name": "PRODUCT_URL",
+                    "value": "http://product-api:8000"
+                  },
+                  {
+                    "name": "PROMOTION_URL",
+                    "value": "http://promotion:8000"
+                  },
+                  {
+                    "name": "RATE_LIMIT_MAX",
+                    "value": "500"
+                  }
+                ],
+                "ports": [
+                  {
+                    "containerPort": 3000
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "metadata": {
+        "name": "api-gateway"
+      },
+      "spec": {
+        "selector": {
+          "app": "api-gateway"
+        },
+        "ports": [
+          {
+            "port": 3000,
+            "targetPort": 3000
+          }
+        ]
+      }
+    }
+  ]
+}

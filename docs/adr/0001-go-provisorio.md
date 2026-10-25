@@ -1,6 +1,6 @@
 # ADR 0001 — Go como stack provisória
 
-Status: Aceito (provisório, Eduardo pode trocar)
+Status: Substituído por [ADR 0006](0006-java-spring-boot.md) em 24/10/2026
 Data: 2026-10-19
 
 ## Contexto

@@ -14,7 +14,7 @@ troca seja mecânica quando os demais repos terminarem.
 | Dead letter | `support.order-created.dlq`, após 3 falhas de processamento |
 | Corpo | o **mesmo JSON** do [contrato HTTP](contrato-api.md) (`OrderCreated`) |
 | Publicador | `order` (quando o pedido é criado) |
-| Consumidor | `support`, em goroutine própria dentro do mesmo processo |
+| Consumidor | `support`, em worker Java próprio dentro do mesmo processo |
 
 ## Comportamento do consumidor
 
@@ -38,3 +38,11 @@ Em K8s: variável `AMQP_URL` em Secret; se vazia, o consumidor não sobe e o ser
 - [ ] `order` publicando `order.created` com o payload do contrato.
 - [ ] Consumidor implementado e testado com o broker (teste de integração com container).
 - [ ] Métrica `support_events_total{result}` igual nos dois transportes.
+
+## Implementado e testado em 25/10/2026
+
+O consumidor está pronto e é ativado por `AMQP_URL`. HTTP e AMQP usam `NotificationAcceptance`, com o mesmo contrato e idempotência. Mensagens inválidas vão diretamente à DLQ; falhas de armazenamento recebem três tentativas locais (100 ms e 200 ms entre elas) e depois DLQ. O ack ocorre somente após persistir o evento; o dispatcher continua assíncrono.
+
+A fila/exchange são declaradas por RabbitAdmin e recuperadas quando necessário. A suíte com RabbitMQ real prova persistência, duplicata, invalidez, falha de armazenamento e recriação da fila. CI executa esse teste com serviço RabbitMQ. `k8s/rabbitmq.yaml` fornece um broker de laboratório opcional; o chart usa `rabbitmq.enabled=true` quando desejado. O broker de laboratório tem armazenamento efêmero: não é implantação de produção.
+
+`order` real ainda usa HTTP para `OrderCreated`. O teste integrado validou esse caminho. A mudança do publisher do order para AMQP deve preservar o mesmo JSON; não foi alterado o código de outro responsável para declarar uma integração inexistente.
