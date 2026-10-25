@@ -31,6 +31,34 @@ spec:
                 secretKeyRef:
                   name: {{ required "existingSecret é obrigatório" .Values.existingSecret }}
                   key: internal-secret
+            - name: SMS_PROVIDER
+              value: {{ .Values.channels.sms | quote }}
+            - name: WHATSAPP_PROVIDER
+              value: {{ .Values.channels.whatsapp | quote }}
+            {{- if or (eq .Values.channels.sms "twilio") (eq .Values.channels.whatsapp "twilio") }}
+            - name: TWILIO_ACCOUNT_SID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.twilio.existingSecret }}
+                  key: account-sid
+            - name: TWILIO_AUTH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.twilio.existingSecret }}
+                  key: auth-token
+            - name: TWILIO_SMS_FROM
+              value: {{ .Values.twilio.smsFrom | quote }}
+            - name: TWILIO_WHATSAPP_FROM
+              value: {{ .Values.twilio.whatsappFrom | quote }}
+            - name: TWILIO_WHATSAPP_CONTENT_SID
+              value: {{ .Values.twilio.whatsappContentSid | quote }}
+            {{- end }}
+            - name: AMQP_URL
+              valueFrom:
+                secretKeyRef:
+                  name: support-credentials
+                  key: amqp-url
+                  optional: true
             - name: DB_PATH
               value: /data/support.db
             - name: SMTP_HOST
@@ -45,16 +73,19 @@ spec:
             - name: data
               mountPath: /data
           startupProbe:
+            timeoutSeconds: 5
             httpGet:
               path: /health
               port: 8090
             failureThreshold: 30
             periodSeconds: 5
           readinessProbe:
+            timeoutSeconds: 5
             httpGet:
               path: /health/ready
               port: 8090
           livenessProbe:
+            timeoutSeconds: 5
             httpGet:
               path: /health
               port: 8090

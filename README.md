@@ -56,6 +56,12 @@ Depois de clonar: `lefthook install`.
 
 O worker consulta eventos persistidos a cada 250 ms e grava o resultado por canal. Notificações aceitas antes de um reinício continuam pendentes no SQLite. Consulte os limites de entrega no ADR 0006.
 
-Veja [Kubernetes](k8s/README.md), [Helm](helm/support/README.md), [dashboard](k8s/observability/README.md) e [estado N2](docs/n2-status.md). O workflow CI publica no GHCR ao entrar em `main`; a release manual Docker Hub requer secrets de Actions com acesso a `bascratki/support`.
+Veja [Kubernetes](k8s/README.md), [Helm](helm/support/README.md), [dashboard](k8s/observability/README.md) e [estado N2](docs/n2-status.md). O workflow CI publica no GHCR ao entrar em `main`; a release manual Docker Hub requer secrets de Actions com acesso a `eduardofabri/support`.
 
 Com o serviço e o Mailpit no ar, execute `INTERNAL_SECRET=... python3 scripts/smoke-test.py`. `SUPPORT_URL` e `MAILPIT_URL` permitem usar portas diferentes. O teste usa destinatário fictício e deve apontar para o Mailpit de teste.
+
+## Validação de 25/10/2026
+
+Instalações Helm e Kustomize exercitadas em Minikube; imagem pública `eduardofabri/support:1.0.1` com AMD64/ARM64. O pedido do order real chegou ao Mailpit e o PVC preservou o histórico após recriar o pod. Scripts reproduzíveis e fixtures identificadas em `scripts/n2/`; capturas e resultados sem tokens em `docs/evidence/2026-10-25/`.
+
+Consumidor RabbitMQ ativado por `AMQP_URL`. Canais `twilio` disponíveis por configuração, com requisitos e limites em `docs/canais-reais.md`. Nenhum envio real Twilio foi realizado por falta de conta; `fake` continua padrão.

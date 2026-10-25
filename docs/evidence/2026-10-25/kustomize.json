@@ -1,0 +1,10 @@
+{
+  "namespace": "ganjj-kustomize",
+  "checks": [
+    "kubectl apply -k succeeded",
+    "SMTP delivered to Mailpit",
+    "three sent deliveries",
+    "pod recreated",
+    "history persisted in PVC"
+  ]
+}

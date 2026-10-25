@@ -16,7 +16,7 @@ public record SupportConfig(String secret, String dbPath, String emailProvider,
     public SupportConfig {
         if (secret == null || secret.isBlank()) throw new IllegalArgumentException("INTERNAL_SECRET é obrigatório");
         if (!"smtp".equals(emailProvider) && !"fake".equals(emailProvider)) throw new IllegalArgumentException("EMAIL_PROVIDER inválido");
-        if (!"fake".equals(smsProvider)) throw new IllegalArgumentException("SMS_PROVIDER inválido");
-        if (!"fake".equals(whatsappProvider)) throw new IllegalArgumentException("WHATSAPP_PROVIDER inválido");
+        if (!"fake".equals(smsProvider) && !"twilio".equals(smsProvider)) throw new IllegalArgumentException("SMS_PROVIDER inválido");
+        if (!"fake".equals(whatsappProvider) && !"twilio".equals(whatsappProvider)) throw new IllegalArgumentException("WHATSAPP_PROVIDER inválido");
     }
 }

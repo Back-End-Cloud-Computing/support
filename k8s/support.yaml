@@ -22,7 +22,7 @@ spec:
         fsGroup: 10001
       containers:
         - name: support
-          image: bascratki/support:1.0.0
+          image: eduardofabri/support:1.0.1
           ports:
             - containerPort: 8090
           env:
@@ -31,6 +31,12 @@ spec:
                 secretKeyRef:
                   name: support-credentials
                   key: internal-secret
+            - name: AMQP_URL
+              valueFrom:
+                secretKeyRef:
+                  name: support-credentials
+                  key: amqp-url
+                  optional: true
             - name: DB_PATH
               value: /data/support.db
             - name: SMTP_HOST
@@ -45,16 +51,19 @@ spec:
             - name: data
               mountPath: /data
           startupProbe:
+            timeoutSeconds: 5
             httpGet:
               path: /health
               port: 8090
             failureThreshold: 30
             periodSeconds: 5
           readinessProbe:
+            timeoutSeconds: 5
             httpGet:
               path: /health/ready
               port: 8090
           livenessProbe:
+            timeoutSeconds: 5
             httpGet:
               path: /health
               port: 8090

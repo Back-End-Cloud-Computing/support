@@ -5,7 +5,7 @@ on:
       tag:
         description: Immutable image tag (for example 1.2.0)
         required: true
-        default: '1.0.0'
+        default: '1.0.1'
 permissions:
   contents: read
 jobs:
@@ -28,8 +28,8 @@ jobs:
           context: .
           push: true
           platforms: linux/amd64,linux/arm64
-          tags: bascratki/support:${{ inputs.tag }}
+          tags: eduardofabri/support:${{ inputs.tag }}
       - name: Inspect published platforms
         env:
           IMAGE_TAG: ${{ inputs.tag }}
-        run: docker buildx imagetools inspect "bascratki/support:$IMAGE_TAG"
+        run: docker buildx imagetools inspect "eduardofabri/support:$IMAGE_TAG"

@@ -6,7 +6,7 @@ Cada fase é entregável sozinha e ancorada numa data da disciplina. Data deste 
 |---|---|---|
 | 0 Fundação | 19/10 | Repo, docs, issues, scaffold com CI, lefthook e Dockerfile |
 | 1 Núcleo | até 24/10 | Endpoint com segredo, validação, idempotência em SQLite, adapters fake, testes verdes (H, D, C, S) |
-| 2 E-mail, Docker e Kubernetes | até 26/10 | SMTP real com Mailpit, imagem `bascratki/support` multi-arch, manifests com volume, 1 réplica com probes |
+| 2 E-mail, Docker e Kubernetes | até 26/10 | SMTP real com Mailpit, imagem `eduardofabri/support` multi-arch, manifests com volume, 1 réplica com probes |
 | 3 Distribuição | 28/10 a 31/10 | Chart Helm (após a aula de 27/10) |
 | 4 Observabilidade | 04/11 a 07/11 | `/metrics`, scrape pelo Prometheus, painel Grafana em JSON (após 03/11) |
 | 5 Ensaio | 08/11 a 09/11 | Demonstração completa com o `order` chamando |

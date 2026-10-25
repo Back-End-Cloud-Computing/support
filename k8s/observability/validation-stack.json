@@ -1,0 +1,284 @@
+{
+  "apiVersion": "v1",
+  "kind": "List",
+  "items": [
+    {
+      "apiVersion": "v1",
+      "kind": "ServiceAccount",
+      "metadata": {
+        "name": "ganjj-prometheus"
+      }
+    },
+    {
+      "apiVersion": "rbac.authorization.k8s.io/v1",
+      "kind": "Role",
+      "metadata": {
+        "name": "ganjj-prometheus"
+      },
+      "rules": [
+        {
+          "apiGroups": [
+            ""
+          ],
+          "resources": [
+            "pods"
+          ],
+          "verbs": [
+            "get",
+            "list",
+            "watch"
+          ]
+        }
+      ]
+    },
+    {
+      "apiVersion": "rbac.authorization.k8s.io/v1",
+      "kind": "RoleBinding",
+      "metadata": {
+        "name": "ganjj-prometheus"
+      },
+      "subjects": [
+        {
+          "kind": "ServiceAccount",
+          "name": "ganjj-prometheus"
+        }
+      ],
+      "roleRef": {
+        "apiGroup": "rbac.authorization.k8s.io",
+        "kind": "Role",
+        "name": "ganjj-prometheus"
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "ConfigMap",
+      "metadata": {
+        "name": "ganjj-prometheus"
+      },
+      "data": {
+        "prometheus.yml": "global:\n  scrape_interval: 5s\nscrape_configs:\n  - job_name: ganjj\n    kubernetes_sd_configs:\n      - role: pod\n        namespaces:\n          names: [ganjj-n2]\n    relabel_configs:\n      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]\n        action: keep\n        regex: \"true\"\n      - source_labels: [__meta_kubernetes_pod_ip, __meta_kubernetes_pod_annotation_prometheus_io_port]\n        action: replace\n        regex: (.+);(.+)\n        replacement: $1:$2\n        target_label: __address__\n      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]\n        target_label: __metrics_path__\n      - source_labels: [__meta_kubernetes_pod_label_app]\n        target_label: service\n      - source_labels: [__meta_kubernetes_pod_name]\n        target_label: pod\n"
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "ConfigMap",
+      "metadata": {
+        "name": "ganjj-grafana-provisioning"
+      },
+      "data": {
+        "datasources.yaml": "apiVersion: 1\ndatasources:\n  - name: Prometheus\n    uid: ganjj-prometheus\n    type: prometheus\n    access: proxy\n    url: http://ganjj-prometheus:9090\n    isDefault: true\n",
+        "dashboards.yaml": "apiVersion: 1\nproviders:\n  - name: GANJJ\n    type: file\n    options:\n      path: /var/lib/grafana/dashboards\n"
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "ConfigMap",
+      "metadata": {
+        "name": "ganjj-grafana-dashboards"
+      },
+      "data": {
+        "client.json": "{\"uid\": \"ganjj-client\", \"title\": \"GANJJ / client\", \"schemaVersion\": 39, \"version\": 1, \"refresh\": \"10s\", \"time\": {\"from\": \"now-30m\", \"to\": \"now\"}, \"panels\": [{\"id\": 1, \"title\": \"Requisi\\u00e7\\u00f5es/s\", \"type\": \"timeseries\", \"datasource\": {\"type\": \"prometheus\", \"uid\": \"ganjj-prometheus\"}, \"gridPos\": {\"h\": 8, \"w\": 8, \"x\": 0, \"y\": 0}, \"targets\": [{\"refId\": \"A\", \"expr\": \"sum(rate(client_http_requests_total[$__rate_interval]))\"}], \"fieldConfig\": {\"defaults\": {\"unit\": \"reqps\"}, \"overrides\": []}}, {\"id\": 2, \"title\": \"Erros/s\", \"type\": \"timeseries\", \"datasource\": {\"type\": \"prometheus\", \"uid\": \"ganjj-prometheus\"}, \"gridPos\": {\"h\": 8, \"w\": 8, \"x\": 8, \"y\": 0}, \"targets\": [{\"refId\": \"A\", \"expr\": \"sum(rate(client_http_requests_total{status=~\\\"5..\\\"}[$__rate_interval])) or vector(0)\"}], \"fieldConfig\": {\"defaults\": {\"unit\": \"reqps\"}, \"overrides\": []}}, {\"id\": 3, \"title\": \"Lat\\u00eancia p95\", \"type\": \"timeseries\", \"datasource\": {\"type\": \"prometheus\", \"uid\": \"ganjj-prometheus\"}, \"gridPos\": {\"h\": 8, \"w\": 8, \"x\": 16, \"y\": 0}, \"targets\": [{\"refId\": \"A\", \"expr\": \"histogram_quantile(0.95, sum by (le) (rate(client_http_request_duration_seconds_bucket[$__rate_interval])))\"}], \"fieldConfig\": {\"defaults\": {\"unit\": \"s\"}, \"overrides\": []}}]}",
+        "authorization.json": "{\"uid\": \"ganjj-authorization\", \"title\": \"GANJJ / authorization\", \"schemaVersion\": 39, \"version\": 1, \"refresh\": \"10s\", \"time\": {\"from\": \"now-30m\", \"to\": \"now\"}, \"panels\": [{\"id\": 1, \"title\": \"Requisi\\u00e7\\u00f5es/s\", \"type\": \"timeseries\", \"datasource\": {\"type\": \"prometheus\", \"uid\": \"ganjj-prometheus\"}, \"gridPos\": {\"h\": 8, \"w\": 8, \"x\": 0, \"y\": 0}, \"targets\": [{\"refId\": \"A\", \"expr\": \"sum(rate(http_server_requests_seconds_count{application=\\\"authorization\\\"}[$__rate_interval]))\"}], \"fieldConfig\": {\"defaults\": {\"unit\": \"reqps\"}, \"overrides\": []}}, {\"id\": 2, \"title\": \"Erros/s\", \"type\": \"timeseries\", \"datasource\": {\"type\": \"prometheus\", \"uid\": \"ganjj-prometheus\"}, \"gridPos\": {\"h\": 8, \"w\": 8, \"x\": 8, \"y\": 0}, \"targets\": [{\"refId\": \"A\", \"expr\": \"sum(rate(http_server_requests_seconds_count{application=\\\"authorization\\\",status=~\\\"5..\\\"}[$__rate_interval])) or vector(0)\"}], \"fieldConfig\": {\"defaults\": {\"unit\": \"reqps\"}, \"overrides\": []}}, {\"id\": 3, \"title\": \"Lat\\u00eancia p95\", \"type\": \"timeseries\", \"datasource\": {\"type\": \"prometheus\", \"uid\": \"ganjj-prometheus\"}, \"gridPos\": {\"h\": 8, \"w\": 8, \"x\": 16, \"y\": 0}, \"targets\": [{\"refId\": \"A\", \"expr\": \"histogram_quantile(0.95, sum by (le) (rate(http_server_requests_seconds_bucket{application=\\\"authorization\\\"}[$__rate_interval])))\"}], \"fieldConfig\": {\"defaults\": {\"unit\": \"s\"}, \"overrides\": []}}]}",
+        "support.json": "{\"uid\": \"ganjj-support\", \"title\": \"GANJJ / support\", \"schemaVersion\": 39, \"version\": 1, \"refresh\": \"10s\", \"time\": {\"from\": \"now-30m\", \"to\": \"now\"}, \"panels\": [{\"id\": 1, \"title\": \"Eventos por resultado\", \"type\": \"timeseries\", \"datasource\": {\"type\": \"prometheus\", \"uid\": \"ganjj-prometheus\"}, \"gridPos\": {\"h\": 8, \"w\": 8, \"x\": 0, \"y\": 0}, \"targets\": [{\"refId\": \"A\", \"expr\": \"sum by (result) (rate(support_events_total[$__rate_interval]))\"}], \"fieldConfig\": {\"defaults\": {\"unit\": \"reqps\"}, \"overrides\": []}}, {\"id\": 2, \"title\": \"Entregas por canal e status\", \"type\": \"timeseries\", \"datasource\": {\"type\": \"prometheus\", \"uid\": \"ganjj-prometheus\"}, \"gridPos\": {\"h\": 8, \"w\": 8, \"x\": 8, \"y\": 0}, \"targets\": [{\"refId\": \"A\", \"expr\": \"sum by (channel,status) (rate(support_notifications_total[$__rate_interval]))\"}], \"fieldConfig\": {\"defaults\": {\"unit\": \"reqps\"}, \"overrides\": []}}, {\"id\": 3, \"title\": \"Dura\\u00e7\\u00e3o p95 por canal\", \"type\": \"timeseries\", \"datasource\": {\"type\": \"prometheus\", \"uid\": \"ganjj-prometheus\"}, \"gridPos\": {\"h\": 8, \"w\": 8, \"x\": 16, \"y\": 0}, \"targets\": [{\"refId\": \"A\", \"expr\": \"histogram_quantile(0.95, sum by (le,channel) (rate(support_send_duration_seconds_bucket[$__rate_interval])))\"}], \"fieldConfig\": {\"defaults\": {\"unit\": \"s\"}, \"overrides\": []}}]}"
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {
+        "name": "ganjj-prometheus"
+      },
+      "spec": {
+        "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "app": "ganjj-prometheus"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "app": "ganjj-prometheus"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "ganjj-prometheus",
+                "image": "prom/prometheus:v3.7.1",
+                "ports": [
+                  {
+                    "containerPort": 9090
+                  }
+                ],
+                "volumeMounts": [
+                  {
+                    "name": "config",
+                    "mountPath": "/etc/prometheus"
+                  }
+                ],
+                "resources": {
+                  "requests": {
+                    "cpu": "50m",
+                    "memory": "128Mi"
+                  },
+                  "limits": {
+                    "cpu": "500m",
+                    "memory": "512Mi"
+                  }
+                },
+                "args": [
+                  "--config.file=/etc/prometheus/prometheus.yml",
+                  "--storage.tsdb.retention.time=1d"
+                ]
+              }
+            ],
+            "volumes": [
+              {
+                "name": "config",
+                "configMap": {
+                  "name": "ganjj-prometheus"
+                }
+              }
+            ],
+            "serviceAccountName": "ganjj-prometheus"
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "metadata": {
+        "name": "ganjj-prometheus"
+      },
+      "spec": {
+        "selector": {
+          "app": "ganjj-prometheus"
+        },
+        "ports": [
+          {
+            "port": 9090,
+            "targetPort": 9090
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {
+        "name": "ganjj-grafana"
+      },
+      "spec": {
+        "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "app": "ganjj-grafana"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "app": "ganjj-grafana"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "ganjj-grafana",
+                "image": "grafana/grafana:12.2.0",
+                "ports": [
+                  {
+                    "containerPort": 3000
+                  }
+                ],
+                "volumeMounts": [
+                  {
+                    "name": "provisioning",
+                    "mountPath": "/etc/grafana/provisioning/datasources/datasources.yaml",
+                    "subPath": "datasources.yaml"
+                  },
+                  {
+                    "name": "provisioning",
+                    "mountPath": "/etc/grafana/provisioning/dashboards/dashboards.yaml",
+                    "subPath": "dashboards.yaml"
+                  },
+                  {
+                    "name": "dashboards",
+                    "mountPath": "/var/lib/grafana/dashboards"
+                  }
+                ],
+                "resources": {
+                  "requests": {
+                    "cpu": "50m",
+                    "memory": "128Mi"
+                  },
+                  "limits": {
+                    "cpu": "500m",
+                    "memory": "512Mi"
+                  }
+                },
+                "env": [
+                  {
+                    "name": "GF_AUTH_ANONYMOUS_ENABLED",
+                    "value": "true"
+                  },
+                  {
+                    "name": "GF_AUTH_ANONYMOUS_ORG_ROLE",
+                    "value": "Viewer"
+                  },
+                  {
+                    "name": "GF_AUTH_DISABLE_LOGIN_FORM",
+                    "value": "true"
+                  },
+                  {
+                    "name": "GF_SECURITY_ADMIN_PASSWORD",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "ganjj-grafana",
+                        "key": "admin-password"
+                      }
+                    }
+                  }
+                ]
+              }
+            ],
+            "volumes": [
+              {
+                "name": "provisioning",
+                "configMap": {
+                  "name": "ganjj-grafana-provisioning"
+                }
+              },
+              {
+                "name": "dashboards",
+                "configMap": {
+                  "name": "ganjj-grafana-dashboards"
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "metadata": {
+        "name": "ganjj-grafana"
+      },
+      "spec": {
+        "selector": {
+          "app": "ganjj-grafana"
+        },
+        "ports": [
+          {
+            "port": 3000,
+            "targetPort": 3000
+          }
+        ]
+      }
+    }
+  ]
+}

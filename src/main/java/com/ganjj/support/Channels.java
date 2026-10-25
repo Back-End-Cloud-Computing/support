@@ -27,6 +27,6 @@ public class Channels {
             }
         };
     }
-    @Bean Notifier sms() { return fake("sms"); }
-    @Bean Notifier whatsapp() { return fake("whatsapp"); }
+    @Bean Notifier sms(SupportConfig config, TwilioSettings twilio) { return "twilio".equals(config.smsProvider()) ? twilio.notifier("sms") : fake("sms"); }
+    @Bean Notifier whatsapp(SupportConfig config, TwilioSettings twilio) { return "twilio".equals(config.whatsappProvider()) ? twilio.notifier("whatsapp") : fake("whatsapp"); }
 }

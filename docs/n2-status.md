@@ -1,15 +1,21 @@
-# Estado da entrega — 24/10/2026
+# Validação N2 — support Java/Spring Boot
 
-Implementado: Spring Boot/Java 21, CI e Dockerfile (#1); endpoint interno com segredo e validação (#2); SQLite e idempotência (#3); SMTP e retry (#4); adapters fake (#5); métricas e consulta de entregas (#6); Kustomize com Mailpit/PVC (#8); Helm (#9); dashboard JSON (#10).
+Atualizado em 25/10/2026. Evidências sanitizadas em `docs/evidence/2026-10-25/`.
 
-Esses itens ainda exigem CI remoto e/ou validação no cluster para o aceite final. O ambiente local não tem contexto Kubernetes configurado. O dashboard precisa de captura no Grafana instalado e os recursos devem ser conferidos com as aulas de 27/10 e 03/11.
+## Executado
 
-Pendentes: publicação Docker Hub multi-arch (#7), integração com o order real (#13), ensaio com o grupo (#14). O workflow de publicação exige secrets `DOCKERHUB_USERNAME` e `DOCKERHUB_TOKEN` com acesso a `bascratki/support`.
+- Build, análise e testes locais; CI do PR anterior verde (nova revisão será validada novamente).
+- Imagem pública Docker Hub `eduardofabri/support:1.0.1`, com linux/amd64 e linux/arm64. Manifest inspecionado e acesso anônimo validado.
+- Instalação real por Helm em Minikube limpo (perfil `ganjj-n2`, Kubernetes 1.37.0), credenciais externas ao Git.
+- Prometheus coletando o serviço e dashboard Grafana importado por provisionamento. Captura versionada.
+- 11 testes sem falhas nem skips com RabbitMQ real: contrato HTTP, concorrência, SQLite, retry, Twilio com HTTP simulado e consumidor/DLQ/recriação de fila.
+- SMTP real no Mailpit em Minikube; histórico preservado após recriar o pod usando PVC.
+- Instalação Kustomize em namespace isolado, além da instalação Helm.
+- Gateway → order real (.NET) → SQL Server real → support → Mailpit: pedido criado, repetição idempotente preservou o mesmo pedido e e-mail do pedido confirmado. Carrinho e estoque foram fixtures explícitas; isso não é um checkout com todos os serviços reais.
+- Twilio preparado e testado sem contato com a API externa; o padrão continua fake. Eduardo informou que a equipe ainda não tem conta.
+- Consumidor RabbitMQ opcional pronto; o order continua publicando `OrderCreated` por HTTP.
 
-Planejados após dependências externas: RabbitMQ (#11, depende do broker e do order publicar eventos) e provedores reais SMS/WhatsApp (#12, exige escolha de provedor e credenciais). As interfaces de Notifier permitem adicionar esses adapters sem mudar o contrato.
+## Pendências humanas / externas
 
-A issue #1 ainda descreve Go provisório; a implementação segue a decisão explícita de Eduardo em ADR 0006. A matriz de testes e os aceites funcionais continuam válidos.
-
-## Evidência local
-
-`./mvnw verify`: 8 testes de comportamento verdes; build Docker passou. Smoke test com Mailpit em containers: e-mail SMTP recebido, três entregas `sent`, repetição do evento com `duplicate=true`, histórico preservado após reiniciar o container support. Helm lint e renderização Helm/Kustomize passaram. Esse teste usa payload fictício e não substitui a integração com o order real.
+- Ensaio da apresentação com o grupo, com tempo por pessoa; roteiro pronto, mas não foi declarado um ensaio humano que não ocorreu.
+- Conta, remetentes e template/consentimento no Twilio para um teste de envio real. Integração AMQP do publisher do order permanece trabalho coordenado com o responsável pelo serviço.

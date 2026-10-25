@@ -35,8 +35,16 @@ R3 apresentação técnica (3,0). Este roteiro cobre a parte do suporte; a ordem
 
 ## Antes do dia
 
-- [ ] Imagem `bascratki/support` pública e multi-arch (amd64 e arm64).
+- [ ] Imagem `eduardofabri/support` pública e multi-arch (amd64 e arm64).
 - [ ] Mailpit exposto por `port-forward` para mostrar a caixa.
 - [ ] `order` real chamando, ou `curl` pronto como plano B.
 - [ ] Painel Grafana exportado em JSON e importado.
 - [ ] Ensaio cronometrado.
+
+## Evidência executada em 25/10/2026
+
+A demonstração técnica foi exercitada: gateway → order real com SQL Server → support → e-mail no Mailpit, repetição idempotente e histórico após recriar o pod. Cart e Product eram fixtures explícitas. As imagens estão públicas no Docker Hub, com AMD64/ARM64. O consumidor RabbitMQ foi testado com broker real; Twilio foi testado contra HTTP simulado, sem envios externos.
+
+![Grafana support](evidence/2026-10-25/grafana-support.jpg)
+
+O ensaio humano do grupo continua pendente. Sugestão de 3 minutos: 30s de arquitetura, 60s para criar pedido e mostrar Mailpit, 30s para idempotência/PVC, 45s para Grafana e 15s para explicar os canais fake/Twilio preparado. Anotar os tempos medidos no ensaio, sem substituir por estes tempos planejados.

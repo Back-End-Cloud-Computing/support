@@ -37,3 +37,13 @@ Variáveis previstas (exemplo Twilio): `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`
 - WhatsApp: mensagem iniciada pela empresa só com template aprovado; o texto do `OrderCreated` precisará virar template.
 - LGPD: telefone e e-mail são dado pessoal; não registrar o telefone completo em log (mascarar) e não guardar além do necessário.
 - Limites do provedor: respeitar taxa de envio; o retry com espera crescente já ajuda.
+
+## Implementação Twilio preparada em 25/10/2026
+
+`TwilioNotifier` usa a [Messages API oficial](https://www.twilio.com/docs/messaging/api/message-resource), com HTTPS, autenticação Basic, formulário URL encoded, timeout e redirecionamentos desativados. Os testes usam servidor HTTP local e não contatam o provedor.
+
+Para selecionar `twilio`, definir `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN` e o remetente do canal. A aplicação recusa iniciar se faltarem as configurações necessárias. As credenciais entram no Secret `support-twilio` (chaves `account-sid` e `auth-token`) e os remetentes em `values.yaml`/ambiente. Os defaults continuam `fake`.
+
+WhatsApp suporta `TWILIO_WHATSAPP_CONTENT_SID` com variáveis `1=assunto` e `2=texto` para um template aprovado. Sem template usa Body, destinado ao sandbox/janela permitida da conversa. A conta, remetentes, template e autorização dos destinatários precisam ser configurados antes do teste real. Nenhuma mensagem real foi enviada: Eduardo informou que a equipe ainda não tem conta.
+
+O status `sent` de um adapter Twilio significa que a API aceitou a solicitação; não equivale a uma confirmação de entrega no aparelho. Confirmar entrega final exige callbacks/status do provedor.

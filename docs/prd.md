@@ -19,7 +19,7 @@ envio se o evento chegar duas vezes, e registrar o resultado de cada canal.
   receber APIs reais; o provedor é escolhido por variável de ambiente.
 - Idempotência por `event_id` e registro de entregas em SQLite.
 - `/health`, `/health/ready` e `/metrics`.
-- Imagem Docker (`bascratki/support`), manifests K8s (com Mailpit e volume), chart Helm, painel Grafana.
+- Imagem Docker (`eduardofabri/support`), manifests K8s (com Mailpit e volume), chart Helm, painel Grafana.
 
 ## Fora de escopo
 
