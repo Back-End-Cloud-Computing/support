@@ -1,0 +1,40 @@
+{
+  "date": "2026-10-26",
+  "namespace": "ganjj-acceptance-audit",
+  "image": "eduardofabri/support:1.0.2",
+  "ready_replicas": 1,
+  "existingSecret": "audit-support-credentials",
+  "exchange": "ganjj.orders",
+  "type": "direct",
+  "synthetic_amqp_publish_confirmed": true,
+  "deliveries": [
+    {
+      "channel": "email",
+      "status": "sent",
+      "provider": "smtp",
+      "attempts": 1,
+      "error": null
+    },
+    {
+      "channel": "sms",
+      "status": "sent",
+      "provider": "fake",
+      "attempts": 1,
+      "error": null
+    },
+    {
+      "channel": "whatsapp",
+      "status": "sent",
+      "provider": "fake",
+      "attempts": 1,
+      "error": null
+    }
+  ],
+  "http_duplicate_of_amqp_event": true,
+  "matching_emails": 1,
+  "health": {
+    "/health": 200,
+    "/health/ready": 200
+  },
+  "note": "Synthetic publisher; no real order.created publisher in order. Old namespace/exchange preserved."
+}

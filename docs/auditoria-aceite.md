@@ -59,3 +59,5 @@ O checkout usa order, SQL Server, gateway, auth, client e support reais; Cart e 
 O contrato no order usa docs/INTEGRATION-CONTRACTS.md §8, e não docs/contrato-api.md. Telefone é opcional; order atual o omite, apesar do plano anterior prever consulta ao client. Os valores dos Secrets do laboratório foram comparados sem imprimir seus conteúdos. O compartilhamento com outros responsáveis depende de canal privado.
 
 O ambiente original ganjj-n2 permanece na versão 1.0.1 com exchange topic. A 1.0.2 é validada em namespace novo ganjj-acceptance-audit com exchange direct, sem remover bindings do ambiente anterior. Migração do exchange antigo foi bloqueada pela revisão automática por risco de remover bindings; não é necessária para esta validação isolada.
+
+Validação da imagem pública 1.0.2 em 26/10: [support-1.0.2-runtime.json](evidence/2026-10-25/support-1.0.2-runtime.json). Namespace novo com Secret de nome alternativo, exchange direct, publicação sintética confirmada, persistência SQLite, SMTP real no Mailpit, duplicata HTTP do mesmo evento com um único e-mail, probes 200 e réplica pronta. Isso não representa publisher implementado no order.

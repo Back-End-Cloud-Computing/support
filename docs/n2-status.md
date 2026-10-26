@@ -4,7 +4,7 @@ Atualizado em 25/10/2026. Evidências sanitizadas em `docs/evidence/2026-10-25/`
 
 ## Executado
 
-- Build, análise e testes locais; CI do PR anterior verde (nova revisão será validada novamente).
+- Build, análise e testes locais; CI do PR de auditoria #20 verde; a revisão final também é verificada antes de integrar.
 - Imagem pública Docker Hub `eduardofabri/support:1.0.2`, com linux/amd64 e linux/arm64. Manifest inspecionado e acesso anônimo validado.
 - Instalação real por Helm em Minikube limpo (perfil `ganjj-n2`, Kubernetes 1.37.0), credenciais externas ao Git.
 - Prometheus coletando o serviço e dashboard Grafana importado por provisionamento. Captura versionada.
@@ -21,3 +21,5 @@ Atualizado em 25/10/2026. Evidências sanitizadas em `docs/evidence/2026-10-25/`
 - Conta, remetentes e template/consentimento no Twilio para um teste de envio real. Integração AMQP do publisher do order permanece trabalho coordenado com o responsável pelo serviço.
 
 Auditoria de aceite: [acceptance-audit.json](evidence/2026-10-25/acceptance-audit.json). A issue #11 foi reaberta: consumidor testado não prova publisher no order. A versão 1.0.2 alinha o exchange `direct` ao contrato do grupo. Destino Docker Hub autorizado por Eduardo: `eduardofabri/support`, requisito da issue #7 atualizado.
+
+Imagem 1.0.2 validada em namespace separado `ganjj-acceptance-audit`; `ganjj-n2` anterior preservado. Evidência: [support-1.0.2-runtime.json](evidence/2026-10-25/support-1.0.2-runtime.json).
