@@ -81,6 +81,15 @@ class SupportTest {
         assertThat(request("POST","/internal/notifications","{","integration-secret").statusCode()).isEqualTo(400);
         assertThat(request("GET","/metrics",null,null).body()).contains("support_events_total{result=\"invalid\"}");
     }
+    @Test void missingEventIdIsRejectedWithoutEnqueuingDelivery() throws Exception {
+        var before=store.pending().stream().map(OrderCreated::event_id).toList();
+        var tree=(tools.jackson.databind.node.ObjectNode)mapper.readTree(mapper.writeValueAsString(event(null)));
+        tree.remove("event_id");
+        var response=request("POST","/internal/notifications",tree.toString(),"integration-secret");
+        assertThat(response.statusCode()).isEqualTo(400);
+        assertThat(response.body()).contains("campo inválido: event_id");
+        assertThat(store.pending().stream().map(OrderCreated::event_id).toList()).containsExactlyElementsOf(before);
+    }
     @Test void concurrentDuplicateRequestsProduceOneEvent() throws Exception {
         var e=event(null);
         var body=mapper.writeValueAsString(e);

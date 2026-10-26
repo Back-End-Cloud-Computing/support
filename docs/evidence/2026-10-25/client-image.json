@@ -1,4 +1,5 @@
 {
+  "date": "2026-10-25",
   "image": "eduardofabri/client:1.2.0",
   "digest": "sha256:4becfbebc4907326aacd3ff99aa887fa744592db6326965fa46d07d28b8c5820",
   "platforms": [

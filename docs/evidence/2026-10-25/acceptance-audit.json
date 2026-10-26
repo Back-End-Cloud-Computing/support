@@ -1,0 +1,32 @@
+{
+  "date": "2026-10-25",
+  "cluster": "ganjj-n2",
+  "checks": {
+    "shared_secret_equal": true,
+    "internal_dns_health": [
+      {
+        "path": "/health",
+        "status": 200
+      },
+      {
+        "path": "/health/ready",
+        "status": 200
+      }
+    ],
+    "zero_total_accepted": true,
+    "same_event_submissions": 2,
+    "matching_emails_after_duplicate": 1,
+    "order_created_while_support_offline": 201,
+    "support_restored": true
+  },
+  "offline_order_id": "9fc772a6-f16b-40c6-b80b-5af8d6e13190",
+  "fixtures": [
+    "shopping-cart",
+    "product-api"
+  ],
+  "limits": [
+    "HTTP integration; order does not publish order.created",
+    "No real Twilio send",
+    "This is a technical lab, not a group rehearsal"
+  ]
+}

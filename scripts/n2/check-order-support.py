@@ -3,7 +3,7 @@
 from pathlib import Path
 import json,urllib.request,urllib.error,time,uuid,os
 r=Path(os.environ.get('GANJJ_SECRET_DIR','/tmp/ganjj-n2-secrets'));state=json.loads((r/'test-identity.json').read_text());token=state['customer']['accessToken']
-support=os.environ.get('SUPPORT_URL','http://localhost:18190')
+support=os.environ.get('SUPPORT_URL','http://localhost:18191')
 def call(base,path,method='GET',body=None,headers=None):
  h={'Content-Type':'application/json',**(headers or {})};req=urllib.request.Request(base+path,data=None if body is None else json.dumps(body).encode(),headers=h,method=method)
  try:

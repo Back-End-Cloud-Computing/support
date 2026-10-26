@@ -25,7 +25,7 @@ public class RabbitConfiguration {
     }
     @Bean RabbitAdmin supportRabbitAdmin(CachingConnectionFactory connection) { return new RabbitAdmin(connection); }
     @Bean Declarables supportQueues() {
-        var exchange=new TopicExchange("ganjj.orders",true,false);
+        var exchange=new DirectExchange("ganjj.orders",true,false);
         var queue=QueueBuilder.durable("support.order-created").deadLetterExchange("").deadLetterRoutingKey("support.order-created.dlq").build();
         return new Declarables(exchange,queue,new Queue("support.order-created.dlq",true),
                 new Binding("support.order-created",Binding.DestinationType.QUEUE,"ganjj.orders","order.created",null));
