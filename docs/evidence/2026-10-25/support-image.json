@@ -1,6 +1,7 @@
 {
-  "image": "eduardofabri/support:1.0.1",
-  "digest": "sha256:2f3bda91ef11afe668d2723636da0ea9515f50472ade8ab8937ac2336b0f9e37",
+  "date": "2026-10-25",
+  "image": "eduardofabri/support:1.0.2",
+  "digest": "sha256:68c526e44647e6005f0154ec40e3d6e5d804d745337d5eecaca025bb32c982d9",
   "platforms": [
     {
       "architecture": "amd64",

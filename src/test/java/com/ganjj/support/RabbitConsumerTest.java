@@ -19,6 +19,15 @@ import static org.assertj.core.api.Assertions.*;
 class RabbitConsumerTest {
     @TempDir static Path dir;
     @DynamicPropertySource static void props(DynamicPropertyRegistry r) {
+        // Order/Promotion already specify a durable direct exchange with this name.
+        // Declare it before Spring starts: a different type must fail the test.
+        try {
+            var broker=new com.rabbitmq.client.ConnectionFactory();
+            broker.setUri(System.getenv("SUPPORT_AMQP_TEST_URL"));
+            try(var connection=broker.newConnection();var channel=connection.createChannel()) {
+                channel.exchangeDeclare("ganjj.orders","direct",true);
+            }
+        } catch(Exception ex) { throw new IllegalStateException("Cannot prepare shared direct exchange",ex); }
         r.add("AMQP_URL",()->System.getenv("SUPPORT_AMQP_TEST_URL"));r.add("support.secret",()->"rabbit-test");
         r.add("support.db-path",()->dir.resolve("rabbit.db").toString());r.add("support.email-provider",()->"fake");
         r.add("support.poll-initial-ms",()->"3600000");

@@ -1,6 +1,27 @@
 {
-  "tests": 11,
-  "failures": 0,
-  "errors": 0,
-  "skipped": 0
+  "date": "2026-10-25",
+  "suites": [
+    {
+      "name": "com.ganjj.support.SupportTest",
+      "tests": "9",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "com.ganjj.support.TwilioNotifierTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "com.ganjj.support.RabbitConsumerTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    }
+  ],
+  "rabbitmq": "real broker, direct exchange declared before application startup"
 }
