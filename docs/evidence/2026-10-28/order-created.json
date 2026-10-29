@@ -1,0 +1,57 @@
+{
+  "date": "2026-10-29",
+  "namespace": "ganjj-acceptance-audit",
+  "real_services": [
+    "authorization",
+    "order",
+    "SQL Server 2022",
+    "RabbitMQ",
+    "support Java",
+    "Mailpit"
+  ],
+  "fixtures": [
+    "Cart",
+    "Product"
+  ],
+  "http_fallback": "http://127.0.0.1:1 (unavailable)",
+  "checks": {
+    "order_status": 201,
+    "repeat_preserved_order_id": true,
+    "order_created_published_in_sql_outbox": true,
+    "support_received_same_event_id": "46736d87-ac7f-45be-b54d-80892881cd46",
+    "matching_emails": 1,
+    "contracts_identical": true,
+    "internal_secrets_equal": true,
+    "public_key_endpoint": 200,
+    "ADMIN_login_and_role": true
+  },
+  "public_key_sha256": "2ca3af594dc420c6f9c1450107b6427f7daf2bd40840d85a5d1bf2d22d0ec357",
+  "order_id": "8157a2ec-d8fd-4885-8d15-f80fe01cfa1a",
+  "deliveries": [
+    {
+      "channel": "email",
+      "status": "sent",
+      "provider": "smtp",
+      "attempts": 1,
+      "error": null
+    },
+    {
+      "channel": "sms",
+      "status": "skipped",
+      "provider": "fake",
+      "attempts": 0,
+      "error": null
+    },
+    {
+      "channel": "whatsapp",
+      "status": "skipped",
+      "provider": "fake",
+      "attempts": 0,
+      "error": null
+    }
+  ],
+  "order_source_revision": "cd96f881433d1c55e18155eee5325bc932f27e4f",
+  "order_image": "ganjj-order-support:cd96f88",
+  "order_image_id": "sha256:139010d0fe4c4c257acbd04f556bad1f0e452989b26b0ccf98888aafed09de26",
+  "pull_request": "https://github.com/Back-End-Cloud-Computing/order/pull/22"
+}

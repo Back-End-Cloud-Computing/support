@@ -1,6 +1,6 @@
 # Auditoria do aceite — 25 e 26/10/2026
 
-Foram encontradas 35 issues atribuídas: as 32 da lista inicial e support #16/#17/#18 já fechadas. Resultado após a auditoria: **28 concluídas, 7 abertas**. Na lista original: 26/32 concluídas. Issue fechada e CI verde, sozinhos, não comprovam todos os critérios.
+Foram encontradas 35 issues atribuídas: as 32 da lista inicial e support #16/#17/#18 já fechadas. Atualização de 28/10: **30 concluídas, 5 abertas** após concluir publisher real e contrato/Secrets. Na lista original: 28/32 concluídas. Issue fechada e CI verde, sozinhos, não comprovam todos os critérios.
 
 ## Correções desta auditoria
 
@@ -44,15 +44,15 @@ Os nomes de evidência abaixo se referem a docs/evidence/2026-10-25 neste repo, 
 | [support #8](https://github.com/Back-End-Cloud-Computing/support/issues/8) | Concluída | kustomize.json; PVC e SMTP validados |
 | [support #9](https://github.com/Back-End-Cloud-Computing/support/issues/9) | Concluída | Helm lint/install; mesma configuração de PVC/SMTP/Secret |
 | [support #10](https://github.com/Back-End-Cloud-Computing/support/issues/10) | Concluída | grafana-support.jpg; dashboard JSON provisionado |
-| [support #11](https://github.com/Back-End-Cloud-Computing/support/issues/11) | Aberta | Consumidor pronto; order ainda não publica order.created. Broker/teste de consumidor não substituem teste do publisher real. |
+| [support #11](https://github.com/Back-End-Cloud-Computing/support/issues/11) | Concluída | order PR #22; order-created.json: pedido real → outbox → RabbitMQ → support → SMTP, fallback HTTP indisponível. |
 | [support #12](https://github.com/Back-End-Cloud-Computing/support/issues/12) | Aberta | Integração Twilio preparada; faltam conta, remetentes/template e envios reais. |
 | [support #13](https://github.com/Back-End-Cloud-Computing/support/issues/13) | Concluída | order-support.json + acceptance-audit.json: email único, duplicata e pedido com suporte desligado |
 | [support #14](https://github.com/Back-End-Cloud-Computing/support/issues/14) | Aberta | Ensaio real com o grupo, com tempos anotados. |
 | [support #16](https://github.com/Back-End-Cloud-Computing/support/issues/16) | Concluída | acceptance-audit.json: health e ready 200 pela rede do cluster; probes versionadas |
-| [support #17](https://github.com/Back-End-Cloud-Computing/support/issues/17) | Aberta | Payload compatível e Secrets iguais no laboratório. Falta acordo entre responsáveis e caminho documental correspondente no order (atual INTEGRATION-CONTRACTS.md §8). |
+| [support #17](https://github.com/Back-End-Cloud-Computing/support/issues/17) | Concluída | docs/contrato-api.md idênticos; mesmo Secret interno configurado privadamente nos dois serviços; prova em order-created.json. |
 | [support #18](https://github.com/Back-End-Cloud-Computing/support/issues/18) | Concluída | acceptance-audit.json: gateway acessou DNS support:8090 dentro do cluster |
 
-## Limites da prova
+## Limites da prova em 25/26 de outubro
 
 O checkout usa order, SQL Server, gateway, auth, client e support reais; Cart e Product são fixtures declaradas. Promotion/JWT também foi testado com MySQL real. Não foi demonstrado checkout com todos os serviços reais. Consumidor RabbitMQ foi testado com broker real, sem publisher real no order. Twilio foi testado com HTTP simulado, sem envio externo. Material do professor disponível compara Keycloak/Istio ao contrato implementado; não foi identificada uma página datada especificamente 20/10. Roteiros preparados não são ensaio em grupo.
 
@@ -61,3 +61,11 @@ O contrato no order usa docs/INTEGRATION-CONTRACTS.md §8, e não docs/contrato-
 O ambiente original ganjj-n2 permanece na versão 1.0.1 com exchange topic. A 1.0.2 é validada em namespace novo ganjj-acceptance-audit com exchange direct, sem remover bindings do ambiente anterior. Migração do exchange antigo foi bloqueada pela revisão automática por risco de remover bindings; não é necessária para esta validação isolada.
 
 Validação da imagem pública 1.0.2 em 26/10: [support-1.0.2-runtime.json](evidence/2026-10-25/support-1.0.2-runtime.json). Namespace novo com Secret de nome alternativo, exchange direct, publicação sintética confirmada, persistência SQLite, SMTP real no Mailpit, duplicata HTTP do mesmo evento com um único e-mail, probes 200 e réplica pronta. Isso não representa publisher implementado no order.
+
+## Atualização de 28/10 — pendências técnicas encerradas
+
+O [PR order #22](https://github.com/Back-End-Cloud-Computing/order/pull/22) adiciona OrderCreated ao outbox existente sem remover OrderConfirmed. Os 55 testes locais passaram sem skips, com SQL Server/RabbitMQ reais, e a CI do PR passou. O teste em Kubernetes usou order e SQL Server reais e desabilitou efetivamente o fallback HTTP apontando-o para 127.0.0.1:1. O evento foi publicado, recebido pelo support Java e gerou exatamente um e-mail no Mailpit. A repetição da chave preservou o pedido. Os dois contratos são byte-idênticos e os Secrets internos têm o mesmo valor, criado fora do Git.
+
+Evidência atual: [order-created.json](evidence/2026-10-28/order-created.json) e [order-tests.json](evidence/2026-10-28/order-tests.json). As limitações anteriores de ausência de publisher/caminho documental referem-se ao estado de 25/26 e foram resolvidas nesta atualização. Cart/Product continuam fixtures; não foi alegado checkout completo com todos os serviços reais.
+
+Continuam abertas: os três ensaios (Eduardo pediu para fazê-los por último); authorization #8 (chave/ADMIN confirmados e arquivo privado entregue a Eduardo, que optou por compartilhar com promotion/gateway; aguarda conclusão do compartilhamento); support #12 (conta Twilio ainda inexistente, conforme confirmação de 28/10). O helper de Secret e o roteiro concreto de ativação estão preparados, mas não houve envio externo.
