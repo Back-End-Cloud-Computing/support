@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-29",
+  "source": "HTTP verifier executed by Eduardo in local Terminal; private result read by agent",
+  "checks": [
+    {
+      "check": "health",
+      "status": 200,
+      "expected": 200,
+      "ok": true
+    },
+    {
+      "check": "readiness",
+      "status": 200,
+      "expected": 200,
+      "ok": true
+    },
+    {
+      "check": "metrics",
+      "status": 200,
+      "expected": 200,
+      "ok": true
+    },
+    {
+      "check": "sem segredo",
+      "status": 403,
+      "expected": 403,
+      "ok": true
+    },
+    {
+      "check": "segredo errado",
+      "status": 403,
+      "expected": 403,
+      "ok": true
+    },
+    {
+      "check": "segredo correto, evento inexistente",
+      "status": 404,
+      "expected": 404,
+      "ok": true
+    }
+  ],
+  "ok": true,
+  "events_created": 0,
+  "messages_sent": 0,
+  "scope": "Local runtime checks only; no Twilio API delivery verified"
+}

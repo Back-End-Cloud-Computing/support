@@ -8,10 +8,11 @@
   },
   "sms_config_preflight": "passed; no network request",
   "whatsapp_config": "blocked: no permitted trial ContentSid",
-  "runtime_started": false,
+  "runtime_started": true,
   "external_messages_sent_by_agent": 0,
   "github": "blocked: DNS",
   "docker": "blocked: socket permissions",
   "authorization_admin_sharing": "confirmed by Eduardo; remote issue not updated",
-  "environment": "local only"
+  "environment": "local only",
+  "runtime_validation": "6 local HTTP checks passed, executed by Eduardo; see local-runtime.json"
 }
