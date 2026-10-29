@@ -8,6 +8,10 @@ e-mail, SMS e WhatsApp. É o "microsserviço de suporte" exigido pelo enunciado 
 - **Porta:** 8090 · **Sem Ingress** (só Service interno, chamado direto pelo `order`)
 - **Prazo:** apresentação N2 em 10/11/2026
 
+## Guia deste serviço
+
+[Entrega local e integração](docs/entrega-local.md): responsabilidade, como iniciar, endereços, configuração, integração com os colegas, evidências e pendências específicas deste repositório. Atualizado em 29/10/2026.
+
 ## Como funciona
 
 ```

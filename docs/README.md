@@ -1,6 +1,6 @@
 # Documentação — Serviço de Suporte (GANJJ)
 
-Escrita para ser lida na ordem abaixo. Fluxo de trabalho: pergunta, decisão, documento, só então código.
+Guia próprio do serviço: [entrega local e integração](entrega-local.md), atualizado em 29/10/2026. O estado atual está em [n2-status.md](n2-status.md).
 
 ## Índice
 
@@ -10,8 +10,8 @@ Escrita para ser lida na ordem abaixo. Fluxo de trabalho: pergunta, decisão, do
 | [Arquitetura](arquitetura.md) | Fluxo, modelo de dados, canais, configuração, métricas |
 | [Contrato](contrato-api.md) | Endpoint, payload, respostas, quem chama |
 | [Testes](testes.md) | Casos de teste definidos antes da implementação |
-| [Canais reais](canais-reais.md) | Plano para SMS e WhatsApp reais |
-| [RabbitMQ](rabbitmq.md) | Plano da fila e do consumidor |
+| [Canais reais](canais-reais.md) | SMS real comprovado e limites WhatsApp trial |
+| [RabbitMQ](rabbitmq.md) | Fila e consumidor; publisher real validado em 28/10 |
 | [Fases](fases.md) | Entregas e datas |
 | [Integração](integration-issues.md) | Dependências dos outros serviços e riscos |
 | [Convenções](convencoes.md) | Commits, branches, PRs, autoria, idioma |
@@ -32,5 +32,7 @@ observabilidade (3,0) · R3 apresentação técnica (3,0).
 ## Pendências fora do código
 
 - [x] Stack Java 21/Spring Boot confirmada por Eduardo em 24/10 (ADR 0006).
-- [ ] Rodrigo (`order`) combinar o payload e o segredo interno ([SUP-001](integration-issues.md)).
-- [ ] Conta `bascratki` no Docker Hub com o repositório `support` público.
+- [x] Payload e segredo interno com order comprovados em 28/10 ([SUP-001](integration-issues.md)).
+- [x] Imagem pública eduardofabri/support:1.0.2, destino autorizado por Eduardo; versão 1.0.3 ainda local.
+- [ ] Ensaio real do grupo, por último.
+- [ ] Registrar o aceite trial proposto na issue #12 sem marcar WhatsApp pela aplicação como aprovado.

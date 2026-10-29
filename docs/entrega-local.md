@@ -1,0 +1,71 @@
+# Entrega local — support
+
+Atualizado em 29/10/2026. Este guia pertence ao support. Visão geral no [README](../README.md), contrato em [contrato-api.md](contrato-api.md) e limitações do provedor em [canais-reais.md](canais-reais.md).
+
+## Responsabilidade e dependências
+
+Serviço Java 21/Spring Boot com SQLite: recebe OrderCreated, persiste eventos/entregas e notifica por e-mail, SMS e WhatsApp. event_id fornece idempotência; o worker reprocessa eventos pendentes. Com SQLite, usar uma réplica.
+
+No laboratório integrado, order grava o evento no outbox e publica no RabbitMQ; o suporte consome pela fila. O HTTP com x-internal-secret permanece como fallback. O e-mail usa SMTP/Mailpit. A prova de 28/10 usou order/SQL Server/RabbitMQ reais, com Cart/Product explicitamente simulados.
+
+## Ambientes locais distintos
+
+| Ambiente | Porta e comportamento |
+|---|---|
+| Serviço padrão / Kubernetes | 8090, chamado internamente pelo order |
+| Laboratório isolado Twilio | 127.0.0.1:8095; banco separado, AMQP desligado, SMS Twilio e e-mail/WhatsApp fake |
+
+O laboratório Twilio isolado não substitui automaticamente a release Kubernetes nem recebe a fila antiga. O grupo decidiu permanecer local; não há URL pública nova. Não enviar tokens JWT ao support para autenticar o contrato interno: suas rotas internas usam o segredo x-internal-secret.
+
+## Rodar o serviço padrão
+
+```bash
+cp .env.example .env
+./mvnw package
+./mvnw spring-boot:run
+```
+
+Configurar INTERNAL_SECRET privado e DB_PATH no .env. O Spring importa o .env; o diretório do banco deve ser gravável. SMTP precisa de Mailpit ou outro servidor configurado. Kubernetes/Helm: [manifests](../k8s/README.md), [chart](../helm/support/README.md) e [Grafana](../k8s/observability/README.md).
+
+## Rodar o laboratório Twilio
+
+O usuário preenche um JSON privado com credenciais, remetentes e destinatários. Não versionar esse arquivo. O carregador valida sem rede por padrão:
+
+```bash
+python3 scripts/twilio-local.py --config /caminho/privado/TWILIO-CONFIGURAR.json --channel sms
+```
+
+Acrescentar --run inicia o JAR compilado na porta 8095. O carregador cria banco/segredo privados em support-twilio-local ao lado do JSON. Ele não cria eventos nem envia mensagens por conta própria. O POST posterior de um evento com telefone pode enviar pelo canal real selecionado. Não copiar o segredo desse laboratório para outra release automaticamente.
+
+Para WhatsApp trial, --channel whatsapp/both exige ContentSid permitido iniciado em HX. Account SID iniciado em AC não serve nesse campo. A conta atual não disponibilizou esse identificador no fluxo observado; a biblioteca ofereceu upgrade para templates próprios. Nenhum upgrade foi contratado. Nem todo teste WhatsApp trial exige pagamento; o bloqueio desta configuração está descrito no aceite proposto da issue #12.
+
+## Rotas e verificação
+
+| Rota | Resultado |
+|---|---|
+| GET /health | Processo responde |
+| GET /health/ready | Prontidão do banco |
+| GET /metrics | Métricas Prometheus |
+| POST /internal/notifications | Aceita evento: 202, duplicate:false/true |
+| GET /internal/notifications/{event_id} | Entregas por canal; 404 para evento desconhecido |
+
+Rotas internas exigem x-internal-secret e retornam 403 sem segredo/segredo errado. O corpo válido está no contrato. Telefone é opcional: sem ele, SMS/WhatsApp ficam skipped. Não confundir sent de um adapter fake com entrega externa, nem sent do Twilio com recebimento no aparelho.
+
+## O que foi comprovado
+
+- Seis checks do runtime local: health/readiness/metrics 200; rotas protegidas 403 sem segredo/segredo errado e 404 com segredo correto para evento inexistente. [Evidência](evidence/2026-10-29/local-runtime.json).
+- SMS enviado pelo support com modelo fixo do trial, aceito pela API e recebido no celular, conforme confirmação do usuário. O mesmo evento retornou duplicate:true. Isso comprova transporte; não detalhes personalizados do pedido. [Evidência](evidence/2026-10-29/sms-api-test.json).
+- WhatsApp no Console: mensagem Received e resposta automática Delivered; não foi comprovado envio WhatsApp iniciado pela aplicação.
+- Integração de 28/10: outbox/RabbitMQ real com fallback HTTP indisponível e um único e-mail no Mailpit. [Evidência](evidence/2026-10-28/order-created.json).
+
+## Testes e publicação
+
+./mvnw verify executa a suíte Java; testes HTTP abrem sockets e testes AMQP exigem broker. O carregador local tem seis testes offline: python3 -m unittest discover -s scripts -p test_twilio_local.py -v. Eles não substituem os testes da aplicação ou entregas reais.
+
+A suíte HTTP mais recente ficou bloqueada pelo sandbox. O usuário executou o runtime e os testes de entrega no próprio Terminal; os resultados sanitizados foram conferidos, sem contornar o sandbox. Não alegar que toda a suíte foi reexecutada/aprovada nessa etapa.
+
+Imagem pública anterior: eduardofabri/support:1.0.2, amd64/arm64. Ajustes da versão 1.0.3 e esta documentação estão na branch própria, ainda sem push/publicação/deploy.
+
+## Pendências
+
+Publicar os commits/imagem quando houver acesso, registrar a proposta de aceite trial da issue #12 (sem marcar WhatsApp pela aplicação como aprovado) e fazer o ensaio real do grupo (#14), por último. Textos de issues em [atualizacao-issues-trial.md](atualizacao-issues-trial.md). Não repetir o SMS já recebido sem necessidade.
