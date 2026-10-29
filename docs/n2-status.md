@@ -14,8 +14,8 @@ Atualizado em 29/10/2026. Guia operacional: [entrega-local.md](entrega-local.md)
 ## Limites e pendências
 
 - Entrega local com trial, sem contratar upgrade. Falta ContentSid permitido disponível nesta configuração para WhatsApp iniciado pelo support. A resposta automática não substitui esse teste. [Escopo proposto para as issues](atualizacao-issues-trial.md).
-- Ajustes da versão 1.0.3 permanecem na branch própria, sem envio ao GitHub, imagem nova ou deploy. Imagem pública anterior: 1.0.2.
-- Última suíte Java HTTP não pôde abrir sockets no sandbox; não foi declarada aprovada. As validações HTTP/entrega recentes foram executadas pelo usuário no Terminal, com evidência sanitizada conferida pelo agente.
+- Versão 1.0.3 publicada no Docker Hub com manifesto público AMD64/ARM64. [Evidência](evidence/2026-10-29/support-1.0.3-image.json). Código e documentação enviados à branch própria, aguardando revisão do PR.
+- Após autorização de acesso ampliado em 29/10, a suíte Java completa passou: 12 testes, zero falhas/erros/skips, com RabbitMQ real descartável. [Evidência](evidence/2026-10-29/full-validation.json). As validações anteriores de SMS/runtime foram executadas pelo usuário no Terminal, com resultados conferidos.
 - Ensaio com o grupo (#14) continua pendente e por último.
 - #11 e #17 tiveram critérios técnicos concluídos em 28/10. A necessidade de implementar o publisher no order e a ausência de conta Twilio eram pendências antigas já resolvidas.
 

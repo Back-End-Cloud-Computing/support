@@ -1,0 +1,35 @@
+{
+  "date": "2026-10-29",
+  "source": "agent execution with user-authorized expanded access",
+  "java": 21,
+  "maven_verify": "passed",
+  "rabbitmq": "real disposable local broker",
+  "suites": [
+    {
+      "name": "com.ganjj.support.SupportTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.ganjj.support.TwilioNotifierTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.ganjj.support.RabbitConsumerTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "tests": 12,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "twilio_external_messages_sent": 0
+}

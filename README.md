@@ -32,7 +32,7 @@ O ambiente continuará **local**, com **Twilio trial e sem upgrade pago**, por d
 | SMS pelo support | API Twilio aceitou o envio, Eduardo confirmou recebimento no celular e a repetição do evento retornou `duplicate:true` |
 | WhatsApp no Console | Mensagem `Received` e resposta automática `Delivered` no Try out WhatsApp |
 | WhatsApp pelo support | **Não comprovado**: falta ContentSid permitido disponível no fluxo trial desta conta/configuração |
-| Publicação | Imagem pública anterior `eduardofabri/support:1.0.2`; alterações 1.0.3 estão nesta branch e ainda não foram publicadas/deployadas |
+| Publicação | `eduardofabri/support:1.0.3` publicada e manifesto acessível sem login para AMD64/ARM64; código/documentação na branch própria, aguardando revisão do PR |
 
 Evidências: [runtime local](docs/evidence/2026-10-29/local-runtime.json) e [SMS real](docs/evidence/2026-10-29/sms-api-test.json). As execuções foram feitas por Eduardo no Terminal e os resultados sanitizados foram conferidos. `sent` no adapter significa aceitação pela API; neste teste, o recebimento do SMS foi confirmado separadamente pelo usuário.
 
@@ -93,7 +93,7 @@ Depois de clonar: `lefthook install`.
 
 O worker consulta eventos persistidos a cada 250 ms e grava o resultado por canal. Notificações aceitas antes de um reinício continuam pendentes no SQLite. Consulte os limites de entrega no ADR 0006.
 
-Veja [Kubernetes](k8s/README.md), [Helm](helm/support/README.md), [dashboard](k8s/observability/README.md) e [estado N2](docs/n2-status.md). O workflow CI publica no GHCR ao entrar em `main`; a release manual Docker Hub requer secrets de Actions com acesso a `eduardofabri/support`.
+Veja [Kubernetes](k8s/README.md), [Helm](helm/support/README.md), [dashboard](k8s/observability/README.md) e [estado N2](docs/n2-status.md). O workflow CI publica no GHCR ao entrar em `main`; a release manual Docker Hub requer secrets de Actions com acesso a `eduardofabri/support`. Na publicação de 29/10 esses secrets não estavam configurados, então a imagem 1.0.3 foi publicada com a autenticação Docker local existente.
 
 Com o serviço configurado com e-mail SMTP e **SMS/WhatsApp em fake**, e com Mailpit no ar, execute `INTERNAL_SECRET=... python3 scripts/smoke-test.py`. `SUPPORT_URL` e `MAILPIT_URL` permitem usar portas diferentes. O teste usa destinatário fictício e deve apontar para o Mailpit de teste.
 

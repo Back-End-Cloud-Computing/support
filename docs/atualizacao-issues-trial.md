@@ -1,6 +1,6 @@
 # Atualizações de issues preparadas em 29/10
 
-Estes textos estão preparados localmente. Nenhuma issue remota foi editada por esta atualização.
+Os comentários foram registrados no GitHub em 29/10. Authorization #8 foi encerrada após conferir os critérios. Support #12 registra SMS comprovado e a limitação WhatsApp trial; permanece vinculada à revisão da entrega, sem afirmar envio WhatsApp pela aplicação.
 
 ## authorization #8 — registrar compartilhamento e encerrar a pendência
 
@@ -10,7 +10,7 @@ Texto preparado:
 >
 > A pendência de compartilhamento registrada na auditoria foi atendida.
 
-A evidência técnica anterior e a confirmação do usuário atendem à pendência registrada. Publicar o registro/atualizar o estado remoto quando o GitHub estiver acessível, conferindo o corpo vigente da issue para não substituir requisitos desconhecidos.
+A evidência técnica anterior e a confirmação do usuário atendem à pendência registrada. O corpo vigente foi conferido: endpoint no cluster e credenciais combinadas fora do repositório. Ambos foram atendidos; [issue #8 encerrada](https://github.com/Back-End-Cloud-Computing/authorization/issues/8).
 
 ## support #12 — atualizar escopo para trial
 
@@ -22,7 +22,7 @@ Texto preparado:
 > - WhatsApp: mensagem recebida e resposta automática entregue no ambiente Try out WhatsApp do Console.
 > - Adapter WhatsApp e modo de template trial implementados. Envio WhatsApp iniciado pelo support NÃO foi comprovado: falta ContentSid permitido disponível para esta conta/configuração.
 > - Nesta entrega trial, a prova de envio WhatsApp pelo support fica explicitamente fora do aceite concluído; não deve ser marcada como teste aprovado.
-> - Credenciais ficam privadas. Runtime local validado. Ajustes 1.0.3 ainda precisam ser enviados/publicados; a imagem pública anterior é 1.0.2.
+> - Credenciais ficam privadas e o Secret local foi aplicado. Runtime local validado; imagem 1.0.3 publicada e branch enviada, sem merge automático na main.
 >
 > Evidências locais na branch codex/twilio-trial: docs/evidence/2026-10-29/sms-api-test.json e local-runtime.json.
 

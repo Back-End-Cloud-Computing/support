@@ -62,10 +62,10 @@ Rotas internas exigem x-internal-secret e retornam 403 sem segredo/segredo errad
 
 ./mvnw verify executa a suíte Java; testes HTTP abrem sockets e testes AMQP exigem broker. O carregador local tem seis testes offline: python3 -m unittest discover -s scripts -p test_twilio_local.py -v. Eles não substituem os testes da aplicação ou entregas reais.
 
-A suíte HTTP mais recente ficou bloqueada pelo sandbox. O usuário executou o runtime e os testes de entrega no próprio Terminal; os resultados sanitizados foram conferidos, sem contornar o sandbox. Não alegar que toda a suíte foi reexecutada/aprovada nessa etapa.
+Após autorização de acesso ampliado em 29/10, ./mvnw verify passou com 12 testes, zero falhas/erros/skips e RabbitMQ real descartável. [Evidência](evidence/2026-10-29/full-validation.json). Antes disso, o usuário executou o runtime e o teste SMS no próprio Terminal; os resultados sanitizados foram conferidos.
 
-Imagem pública anterior: eduardofabri/support:1.0.2, amd64/arm64. Ajustes da versão 1.0.3 e esta documentação estão na branch própria, ainda sem push/publicação/deploy.
+Imagem pública atual: eduardofabri/support:1.0.3, amd64/arm64, manifesto verificado sem login. [Evidência](evidence/2026-10-29/support-1.0.3-image.json). Código e documentação estão enviados à branch própria codex/twilio-trial, aguardando revisão para integrar na main.
 
 ## Pendências
 
-Publicar os commits/imagem quando houver acesso, registrar a proposta de aceite trial da issue #12 (sem marcar WhatsApp pela aplicação como aprovado) e fazer o ensaio real do grupo (#14), por último. Textos de issues em [atualizacao-issues-trial.md](atualizacao-issues-trial.md). Não repetir o SMS já recebido sem necessidade.
+Revisar o PR sem merge automático, registrar o aceite trial da issue #12 (sem marcar WhatsApp pela aplicação como aprovado) e fazer o ensaio real do grupo (#14), por último. Textos de issues em [atualizacao-issues-trial.md](atualizacao-issues-trial.md). Não repetir o SMS já recebido sem necessidade.

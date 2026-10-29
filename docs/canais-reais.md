@@ -14,7 +14,7 @@ Evidências: [SMS real](evidence/2026-10-29/sms-api-test.json) e [runtime local]
 
 A implementação Java usa um adapter por canal, seleção por SMS_PROVIDER/WHATSAPP_PROVIDER, registro persistente das entregas, retry e métricas. Os defaults continuam fake para desenvolvimento/CI.
 
-TwilioNotifier usa HTTPS, Basic Auth, formulário URL encoded, timeout e redirecionamentos desativados. Os testes do adapter usam HTTP simulado; isso não prova entrega externa. A execução mais recente desses testes foi bloqueada pelo sandbox ao abrir sockets, conforme a auditoria.
+TwilioNotifier usa HTTPS, Basic Auth, formulário URL encoded, timeout e redirecionamentos desativados. Os testes do adapter usam HTTP simulado; isso não prova entrega externa. Após autorização de acesso ampliado, a suíte completa passou em 29/10: 12 testes sem falhas/erros/skips, com RabbitMQ real (full-validation.json).
 
 O SMS trial da versão 1.0.3 permite TWILIO_SMS_TRIAL_TEMPLATE=sms_order_confirmation. O modelo fixo foi usado para comprovar transporte; ele não comprova recebimento de detalhes personalizados do pedido.
 
@@ -30,6 +30,6 @@ A issue remota ainda precisa receber o escopo atualizado antes de ser tratada co
 
 Seguir [ativação](ativacao-twilio.md). scripts/twilio-local.py lê o JSON privado e permite validar/iniciar SMS separadamente do template WhatsApp. O laboratório isolado não consome a fila antiga. Credenciais, destinatários e segredo interno ficam fora do Git.
 
-A versão 1.0.3 e os ajustes estão na branch própria codex/twilio-trial; não foram publicados/deployados. A imagem pública anterior permanece 1.0.2.
+A imagem eduardofabri/support:1.0.3 foi publicada e verificada anonimamente em AMD64/ARM64 ([evidência](evidence/2026-10-29/support-1.0.3-image.json)). Os ajustes estão publicados na branch própria codex/twilio-trial, aguardando revisão para integração na main.
 
 sent no adapter significa aceitação na API, não recebimento no aparelho. No teste SMS desta entrega, Eduardo confirmou também o recebimento. Não repetir o disparo sem necessidade.

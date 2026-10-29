@@ -1,0 +1,11 @@
+{
+  "date": "2026-10-29",
+  "image": "eduardofabri/support:1.0.3",
+  "digest": "sha256:9ac3ed5954e93ae0aa0ec50d10446e03d895e2cf37f6141094a307a6b0899d3b",
+  "platforms": [
+    "linux/amd64",
+    "linux/arm64"
+  ],
+  "anonymous_registry_pull_manifest": true,
+  "app_source_commit": "3f63c8b3e55f53d696bd0b2c734d1db6fbfea957"
+}
