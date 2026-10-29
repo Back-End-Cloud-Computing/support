@@ -13,6 +13,7 @@
   ],
   "api_accepted": true,
   "duplicate_rejected": true,
-  "handset_receipt_confirmed": false,
-  "whatsapp_app_delivery_verified": false
+  "handset_receipt_confirmed": true,
+  "whatsapp_app_delivery_verified": false,
+  "receipt_confirmation_source": "Eduardo confirmed receipt in this chat on 2026-10-29"
 }
