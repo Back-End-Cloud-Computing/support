@@ -35,7 +35,7 @@ R3 apresentação técnica (3,0). Este roteiro cobre a parte do suporte; a ordem
 
 ## Antes do dia
 
-- [x] Imagem `eduardofabri/support:1.0.2` pública e multi-arch (amd64 e arm64), validada anteriormente. A versão 1.0.3 continua local.
+- [x] Imagem `eduardofabri/support:1.0.3` pública e multi-arch (amd64 e arm64), validada no laboratório em 29/10.
 - [ ] Mailpit exposto por `port-forward` para mostrar a caixa.
 - [x] `order` real publicando OrderCreated e gerando aviso, comprovado em 28/10 (Cart/Product eram fixtures).
 - [x] Painel Grafana exportado em JSON e importado no laboratório; conferir disponibilidade antes do ensaio.
@@ -54,4 +54,4 @@ O ensaio humano do grupo continua pendente. Sugestão de 3 minutos: 30s de arqui
 
 A evidência de 28/10 inclui publisher real no order, outbox, SQL Server e RabbitMQ, com o fallback HTTP indisponível. O support recebeu o evento e gerou exatamente um e-mail no Mailpit. As observações anteriores sobre ausência de publisher correspondem ao estado de 25/10.
 
-Em 29/10 o ambiente segue local por decisão de Eduardo. Não apresentar o DNS Kubernetes como URL pública, a resposta automática Twilio como envio da aplicação, ou a versão 1.0.3 como publicada. Os tempos do ensaio devem ser medidos pelo grupo; este roteiro e as demonstrações técnicas não concluem a issue de ensaio.
+Em 29/10 o ambiente segue local por decisão de Eduardo. Não apresentar o DNS Kubernetes como URL pública, a resposta automática Twilio como envio da aplicação, ou a resposta automática WhatsApp como envio iniciado pelo support. A versão 1.0.3 foi publicada e instalada no laboratório isolado em 29/10. Os tempos do ensaio devem ser medidos pelo grupo; este roteiro e as demonstrações técnicas não concluem a issue de ensaio.

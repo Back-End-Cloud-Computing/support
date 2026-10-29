@@ -24,7 +24,7 @@ WhatsApp suporta ContentSid. Fora do modo trial, o template personalizado usa as
 
 Eduardo decidiu continuar com trial. O envio WhatsApp pela aplicação permanece sem comprovação. A proposta de atualização do requisito da issue #12 deve explicitar: integração preparada e resposta automática comprovada no Console; envio iniciado pelo support e conteúdo personalizado ficam como limitação pendente do canal.
 
-A issue remota ainda precisa receber o escopo atualizado antes de ser tratada como concluída no escopo trial. Não marcar o critério original de entrega real WhatsApp como aprovado. Texto preparado em [atualização das issues](atualizacao-issues-trial.md).
+A [issue #12](https://github.com/Back-End-Cloud-Computing/support/issues/12) foi atualizada com escopo trial, evidências e a limitação WhatsApp; permanece aberta durante a revisão do [PR #23](https://github.com/Back-End-Cloud-Computing/support/pull/23). Não marcar o critério original de entrega real WhatsApp como aprovado. Texto preparado em [atualização das issues](atualizacao-issues-trial.md).
 
 ## Execução e credenciais
 

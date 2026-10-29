@@ -20,3 +20,8 @@ Atualizado em 29/10/2026. Guia operacional: [entrega-local.md](entrega-local.md)
 - #11 e #17 tiveram critérios técnicos concluídos em 28/10. A necessidade de implementar o publisher no order e a ausência de conta Twilio eram pendências antigas já resolvidas.
 
 Auditoria detalhada: [auditoria-aceite.md](auditoria-aceite.md). Não apresentar Cart/Product como serviços reais na prova de checkout ou o DNS local como endpoint público.
+
+
+## Runtime da imagem publicada
+
+A release support-audit do namespace local ganjj-acceptance-audit foi atualizada para a imagem 1.0.3 e o Helm concluiu como deployed (revisão 4). Seis checks HTTP passaram após a estabilização do cluster. Um pod descartável com SMS=twilio ficou Ready usando credenciais por Secret; nenhum evento foi enviado nele e ele foi removido após a validação. A primeira consulta HTTP extra expirou durante carga alta e não foi contada como aprovada. [Evidência completa](evidence/2026-10-29/support-1.0.3-runtime.json).

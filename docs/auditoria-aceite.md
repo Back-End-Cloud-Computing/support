@@ -85,3 +85,12 @@ Os três ensaios humanos continuam pendentes e por último. Nenhuma issue remota
 ## Entrega com trial e SMS confirmado
 
 O runtime local passou nos seis checks HTTP e Eduardo confirmou o recebimento do SMS enviado pelo support. Evidências de 29/10: local-runtime.json e sms-api-test.json. O template próprio WhatsApp não será contratado nesta entrega; o usuário decidiu manter trial. O envio WhatsApp pela aplicação continua não comprovado e precisa ficar explícito no aceite revisado da issue #12, sem alegar aprovação do requisito original. Textos de atualização remota preparados em atualizacao-issues-trial.md. Nada foi publicado nem fechado no GitHub nesta etapa.
+
+
+## Atualização após acesso ampliado autorizado
+
+GitHub e Docker ficaram acessíveis com a autorização posterior de Eduardo. Branches publicadas; PRs client #10, authorization #12 e support #23 criados, sem merge na main. Authorization #8 encerrada após conferir o requisito vigente e registrar o compartilhamento privado. Support #12 atualizada com o escopo trial e permanece aberta durante a revisão da entrega.
+
+Suíte completa: 12 testes Java sem falhas/erros/skips, incluindo RabbitMQ real; CI do PR também passou. Imagem 1.0.3 publicada em AMD64/ARM64 com manifesto público; Secret Twilio aplicado no laboratório; release Helm support-audit revisão 4 deployed e seis checks HTTP aprovados após o cluster estabilizar. Uma tentativa anterior HTTP durante carga alta expirou e foi registrada sem alegar aprovação. Pod descartável de validação removido; nenhum envio externo adicional realizado.
+
+O workflow de release Docker Hub falhou por ausência de secrets de Actions. A imagem foi publicada com a autenticação Docker local existente; não foram extraídas nem compartilhadas novas credenciais com GitHub. Esse workflow exige configurar os secrets antes de futuras publicações automáticas.

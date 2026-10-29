@@ -1,0 +1,58 @@
+{
+  "date": "2026-10-29",
+  "image": "eduardofabri/support:1.0.3",
+  "image_id": "docker.io/eduardofabri/support@sha256:9ac3ed5954e93ae0aa0ec50d10446e03d895e2cf37f6141094a307a6b0899d3b",
+  "pod_ready": true,
+  "readiness_probe_path": "/health/ready",
+  "sms_provider": "twilio",
+  "credentials_from_secret": {
+    "TWILIO_ACCOUNT_SID": "support-twilio",
+    "TWILIO_AUTH_TOKEN": "support-twilio"
+  },
+  "extra_http_checks": "timed out under high cluster load; not marked passed",
+  "events_created": 0,
+  "external_messages_sent": 0,
+  "scope": "disposable pod with empty database; startup validates credential configuration, not provider delivery",
+  "integrated_release": "support-audit",
+  "helm_revision": 4,
+  "helm_status": "deployed",
+  "integrated_runtime_checks": [
+    {
+      "check": "health",
+      "status": 200,
+      "expected": 200,
+      "ok": true
+    },
+    {
+      "check": "readiness",
+      "status": 200,
+      "expected": 200,
+      "ok": true
+    },
+    {
+      "check": "metrics",
+      "status": 200,
+      "expected": 200,
+      "ok": true
+    },
+    {
+      "check": "no secret",
+      "status": 403,
+      "expected": 403,
+      "ok": true
+    },
+    {
+      "check": "wrong secret",
+      "status": 403,
+      "expected": 403,
+      "ok": true
+    },
+    {
+      "check": "valid secret, unknown event",
+      "status": 404,
+      "expected": 404,
+      "ok": true
+    }
+  ],
+  "cluster_stabilized": true
+}
