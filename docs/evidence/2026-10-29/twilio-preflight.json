@@ -1,0 +1,13 @@
+{
+  "date": "2026-10-29",
+  "branch": "codex/twilio-trial",
+  "whatsapp_console": {"inbound": "Received", "auto_reply": "Delivered", "app_outbound_proven": false},
+  "account_mode": "trial",
+  "whatsapp_trial_mode": "ContentSid required; ContentVariables omitted",
+  "validation": {"settings_tests": 1, "settings_failures": 0, "helm_lint": "passed", "package_without_tests": "passed", "http_and_app_tests": "blocked: sandbox denies listening sockets"},
+  "deployment": "blocked: Docker socket permission denied",
+  "push": "blocked: GitHub DNS unavailable",
+  "credentials_ready": false,
+  "whatsapp_template_ready": false,
+  "agent_external_messages_sent": 0
+}

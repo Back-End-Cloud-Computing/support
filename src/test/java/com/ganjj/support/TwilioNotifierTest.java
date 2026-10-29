@@ -26,18 +26,21 @@ class TwilioNotifierTest {
         });server.start();
         try {
             var base=URI.create("http://127.0.0.1:"+server.getAddress().getPort());
-            var sms=new TwilioNotifier("sms",account,"test-token","+15550000001","","",base);
+            var sms=new TwilioNotifier("sms",account,"test-token","+15550000001","","",false,base);
             var message=new Notifier.Message("+15550000002","Pedido confirmado","Olá + & R$ 12,00");
             sms.send(message);
             assertThat(fields.get()).containsEntry("To","+15550000002").containsEntry("From","+15550000001").containsEntry("Body",message.text());
             assertThat(auth.get()).isEqualTo("Basic "+Base64.getEncoder().encodeToString((account+":test-token").getBytes(StandardCharsets.UTF_8)));
-            new TwilioNotifier("sms",account,"test-token","+15550000001","","sms_order_confirmation",base).send(message);
+            new TwilioNotifier("sms",account,"test-token","+15550000001","","sms_order_confirmation",false,base).send(message);
             assertThat(fields.get()).containsEntry("Body","sms_order_confirmation").containsEntry("To",message.recipient()).doesNotContainKey("ContentSid");
-            new TwilioNotifier("whatsapp",account,"test-token","whatsapp:+15550000001","","sms_order_confirmation",base).send(message);
+            new TwilioNotifier("whatsapp",account,"test-token","whatsapp:+15550000001","","sms_order_confirmation",false,base).send(message);
             assertThat(fields.get()).containsEntry("Body",message.text()).containsEntry("To","whatsapp:"+message.recipient());
-            new TwilioNotifier("whatsapp",account,"test-token","whatsapp:+15550000001","HX"+"a".repeat(32),"sms_order_confirmation",base).send(message);
+            new TwilioNotifier("whatsapp",account,"test-token","whatsapp:+15550000001","HX"+"a".repeat(32),"sms_order_confirmation",false,base).send(message);
             assertThat(fields.get()).containsEntry("To","whatsapp:+15550000002").containsKeys("ContentSid","ContentVariables").doesNotContainKey("Body");
             assertThat(fields.get().get("ContentVariables")).contains("Pedido confirmado","Olá");
+            new TwilioNotifier("whatsapp",account,"test-token","whatsapp:+15550000001","HX"+"b".repeat(32),"",true,base).send(message);
+            assertThat(fields.get()).containsEntry("ContentSid","HX"+"b".repeat(32))
+                    .containsEntry("To","whatsapp:"+message.recipient()).doesNotContainKeys("Body","ContentVariables");
             code.set(429);
             assertThatThrownBy(()->sms.send(message)).hasMessage("Twilio retornou HTTP 429");
         } finally { server.stop(0); }
@@ -51,6 +54,11 @@ class TwilioNotifierTest {
         assertThat(new TwilioSettings(real,env).notifier("sms").provider()).isEqualTo("twilio");
         env.withProperty("TWILIO_SMS_TRIAL_TEMPLATE","sms_order_confirmation");
         assertThatCode(()->new TwilioSettings(real,env)).doesNotThrowAnyException();
+        var whatsapp=new SupportConfig("s","db","fake","fake","twilio","x");
+        env.withProperty("TWILIO_WHATSAPP_FROM","whatsapp:+15550000001").withProperty("TWILIO_WHATSAPP_TRIAL_MODE","true");
+        assertThatThrownBy(()->new TwilioSettings(whatsapp,env)).hasMessageContaining("obrigatório no modo trial");
+        env.withProperty("TWILIO_WHATSAPP_CONTENT_SID","HX"+"a".repeat(32));
+        assertThatCode(()->new TwilioSettings(whatsapp,env)).doesNotThrowAnyException();
         env.withProperty("TWILIO_SMS_TRIAL_TEMPLATE","unknown");
         assertThatThrownBy(()->new TwilioSettings(real,env)).hasMessageContaining("TWILIO_SMS_TRIAL_TEMPLATE");
     }

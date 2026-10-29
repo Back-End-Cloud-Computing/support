@@ -24,6 +24,7 @@ twilio:
   smsTrialTemplate: ""
   whatsappFrom: ""
   whatsappContentSid: ""
+  whatsappTrialMode: false
 rabbitmq:
   enabled: false
   existingSecret: rabbitmq-credentials

@@ -59,3 +59,14 @@ A tela Try out SMS → Order Confirmations → API usa Body=sms_order_confirmati
 O modelo de trial comprova o transporte SMS real quando houver autorização de envio e confirmação, mas não comprova que detalhes personalizados do pedido chegaram ao aparelho. O teste automatizado prova a codificação correta e a separação entre canais; não foi enviado SMS real.
 
 O usuário fez pessoalmente o aceite dos termos WhatsApp, depois informou que enviou o código de vínculo, mas não recebeu confirmação. A última leitura do Console ainda mostrava a etapa de vinculação e logs vazios. Não marcar o WhatsApp como vinculado e não fechar a issue antes da prova. Desde a instrução noturna de Eduardo, qualquer nova solicitação de permissão deve ser negada e registrada, sem pedir aprovação durante a noite.
+
+
+## Retomada em 29/10 — WhatsApp trial
+
+O usuário corrigiu o formato do destinatário para coincidir com o perfil WhatsApp (sem o dígito adicional após o DDD). O Console agora registra uma mensagem Received e uma resposta automática Delivered. Isso comprova a troca pelo ambiente Twilio, mas ainda não um envio pela aplicação support.
+
+A API do trial exige o ContentSid de um template fornecido pelo Console e não permite variáveis de conteúdo personalizadas. Para esse caso, configurar TWILIO_WHATSAPP_TRIAL_MODE=true (Helm: twilio.whatsappTrialMode: true) e TWILIO_WHATSAPP_CONTENT_SID com o template exato exibido para a conta. O modo trial omite ContentVariables; sem ContentSid a aplicação falha na inicialização para evitar tentativas inválidas. O padrão false preserva o template personalizado de duas variáveis para contas que o permitem.
+
+O destinatário WhatsApp deve seguir o número do perfil confirmado pelo usuário. Não aplicar a mesma alteração ao número SMS automaticamente: canais podem usar representações distintas. Os valores e destinatários desta conta ficam somente no arquivo privado local, fora do Git.
+
+Referência: [API e limitações do trial WhatsApp](https://www.twilio.com/docs/usage/trials/try-out-whatsapp#using-the-messaging-api).
