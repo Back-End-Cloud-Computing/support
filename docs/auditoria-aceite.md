@@ -80,3 +80,8 @@ A conta Twilio existe, os remetentes foram identificados e o Auth Token foi pree
 Os ajustes da versão 1.0.3 permanecem na branch própria codex/twilio-trial, sem publicação ou deploy. Docker, sockets locais e GitHub estão bloqueados neste sandbox. JAR, Helm e teste de configuração foram validados; a suíte HTTP mais recente ficou bloqueada por permissões de sockets, sem poder ser declarada aprovada. O carregador local do JSON permite preflight sem rede e execução manual isolada sem consumir a fila antiga.
 
 Os três ensaios humanos continuam pendentes e por último. Nenhuma issue remota foi fechada nesta atualização.
+
+
+## Entrega com trial e SMS confirmado
+
+O runtime local passou nos seis checks HTTP e Eduardo confirmou o recebimento do SMS enviado pelo support. Evidências de 29/10: local-runtime.json e sms-api-test.json. O template próprio WhatsApp não será contratado nesta entrega; o usuário decidiu manter trial. O envio WhatsApp pela aplicação continua não comprovado e precisa ficar explícito no aceite revisado da issue #12, sem alegar aprovação do requisito original. Textos de atualização remota preparados em atualizacao-issues-trial.md. Nada foi publicado nem fechado no GitHub nesta etapa.
