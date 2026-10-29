@@ -71,3 +71,5 @@ Imagem pública atual: eduardofabri/support:1.0.3, amd64/arm64, manifesto verifi
 Revisar o PR #23 sem merge automático e fazer o ensaio real do grupo (#14), por último. A issue #12 já registra o escopo trial e permanece aberta durante a revisão; WhatsApp pela aplicação não foi marcado como aprovado. Textos de issues em [atualizacao-issues-trial.md](atualizacao-issues-trial.md). Não repetir o SMS já recebido sem necessidade.
 
 A imagem 1.0.3 também foi instalada por Helm no namespace isolado ganjj-acceptance-audit, com seis checks HTTP aprovados e Secret validado em pod descartável. Detalhes em [support-1.0.3-runtime.json](evidence/2026-10-29/support-1.0.3-runtime.json). A release integrada mantém SMS/WhatsApp fake para não disparar eventos externos automaticamente.
+
+Matriz completa de aceite das issues deste serviço: [aceite-final.md](aceite-final.md).

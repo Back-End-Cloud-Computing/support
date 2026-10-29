@@ -10,6 +10,8 @@ e-mail, SMS e WhatsApp. É o "microsserviço de suporte" exigido pelo enunciado 
 
 ## Guia deste serviço
 
+[Aceite final das issues](docs/aceite-final.md): matriz de critérios, evidências e exceções combinadas.
+
 [Entrega local e integração](docs/entrega-local.md): responsabilidade, como iniciar, endereços, configuração, integração com os colegas, evidências e pendências específicas deste repositório. Atualizado em 29/10/2026.
 
 ## Como funciona
