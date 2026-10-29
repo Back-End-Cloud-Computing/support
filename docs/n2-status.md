@@ -23,3 +23,7 @@ Atualizado em 25/10/2026. Evidências sanitizadas em `docs/evidence/2026-10-25/`
 Auditoria de aceite: [acceptance-audit.json](evidence/2026-10-25/acceptance-audit.json). A issue #11 foi reaberta: consumidor testado não prova publisher no order. A versão 1.0.2 alinha o exchange `direct` ao contrato do grupo. Destino Docker Hub autorizado por Eduardo: `eduardofabri/support`, requisito da issue #7 atualizado.
 
 Imagem 1.0.2 validada em namespace separado `ganjj-acceptance-audit`; `ganjj-n2` anterior preservado. Evidência: [support-1.0.2-runtime.json](evidence/2026-10-25/support-1.0.2-runtime.json).
+
+## Atualização de 28/10/2026
+
+Publisher order.created integrado ao outbox real do order, contrato espelhado no caminho exigido e Secrets iguais configurados fora do Git. Teste real AMQP → SQLite → SMTP passou com fallback HTTP indisponível e um único e-mail, além de 55 testes .NET locais/CI. Ver docs/evidence/2026-10-28/order-created.json e order-tests.json. Isso resolve as pendências técnicas anteriores de #11/#17; permanece a necessidade de conta Twilio, compartilhamento privado das credenciais ADMIN pelo Eduardo e ensaio posterior com o grupo.

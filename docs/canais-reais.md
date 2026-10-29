@@ -10,26 +10,9 @@ deixa o caminho para trocar por APIs reais sem mexer no resto do serviço.
 - Retry, registro em `deliveries` com o campo `provider`, métricas por canal e status.
 - Telefone em E.164 validado na entrada.
 
-## Passos para ligar um provedor real
+## Ativação do Twilio
 
-1. Escolher o provedor (candidatos abaixo) e abrir conta de teste/sandbox.
-2. Criar o adapter em `src/main/java/com/ganjj/support/` implementando `Notifier`.
-3. Registrar o nome do provedor na lista aceita pela configuração (`SupportConfig`).
-4. Colocar credenciais em **Secret** do Kubernetes (nunca em ConfigMap, nunca no repo) e documentar as
-   variáveis no `.env.example` sem valores.
-5. Teste do adapter contra um servidor HTTP falso (sem chamar o provedor); depois um envio manual em sandbox.
-6. Trocar `SMS_PROVIDER` / `WHATSAPP_PROVIDER` no ConfigMap.
-
-## Candidatos
-
-| Provedor | SMS | WhatsApp | Observações |
-|---|---|---|---|
-| Twilio | sim | sim (sandbox gratuito) | API REST simples, bom para demonstração; número de teste e saldo de avaliação |
-| Zenvia | sim | sim | Provedor brasileiro, mais próximo do uso real no Brasil |
-| Meta WhatsApp Cloud API | não | sim | Exige conta Business e template aprovado para mensagem iniciada pela empresa |
-
-Variáveis previstas (exemplo Twilio): `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN` (Secret), `TWILIO_SMS_FROM`,
-`TWILIO_WHATSAPP_FROM` (ConfigMap).
+A implementação Java já está pronta; não é necessário criar outro adapter. Usar o [passo a passo de ativação e aceite](ativacao-twilio.md), com helper para criar o Secret e conferir a entrega real. A equipe confirmou em 28/10 que ainda não tem conta. A issue #12 permanece aberta até essa validação.
 
 ## Cuidados
 
