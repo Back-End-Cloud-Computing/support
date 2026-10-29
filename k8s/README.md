@@ -1,6 +1,6 @@
 # Kubernetes
 
-Defina `INTERNAL_SECRET` por um canal seguro e execute `./k8s/criar-credentials.sh` no namespace de teste. Publique a imagem `eduardofabri/support:1.0.2` (ou ajuste a referência para uma imagem disponível).
+Defina `INTERNAL_SECRET` por um canal seguro e execute `./k8s/criar-credentials.sh` no namespace de teste. Publique a imagem `eduardofabri/support:1.0.3` (ou ajuste a referência para uma imagem disponível).
 
 ```bash
 kubectl apply -k k8s/

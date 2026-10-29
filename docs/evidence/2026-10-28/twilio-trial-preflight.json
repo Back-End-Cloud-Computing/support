@@ -1,0 +1,29 @@
+{
+  "date": "2026-10-28",
+  "version_under_test": "1.0.3",
+  "source": "Twilio Console: Try out SMS / Order Confirmations / API",
+  "account_mode": "trial",
+  "sms_trial_body": "sms_order_confirmation",
+  "custom_body_default_unchanged": true,
+  "real_messages_sent": 0,
+  "whatsapp_link_confirmed": false,
+  "whatsapp_logs_last_observed": "empty",
+  "selected_test_suites": [
+    {
+      "name": "com.ganjj.support.SupportTest",
+      "tests": "9",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "com.ganjj.support.TwilioNotifierTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    }
+  ],
+  "helm_lint": "passed with channels.sms=twilio and smsTrialTemplate=sms_order_confirmation",
+  "permissions_policy": "Deny new permission requests; record blockers for Eduardo; no unsolicited real messages."
+}

@@ -4,7 +4,7 @@ from pathlib import Path
 # Use the OS trust bundle when Python.framework has no bundled certificate setup.
 context=ssl.create_default_context(cafile='/etc/ssl/cert.pem' if Path('/etc/ssl/cert.pem').exists() else None)
 r=Path(__file__).parents[2]/'docs/evidence/2026-10-25'
-for repo,tag in [('client','1.2.0'),('authorization','1.2.1'),('support','1.0.2')]:
+for repo,tag in [('client','1.2.0'),('authorization','1.2.1'),('support','1.0.3')]:
  query=urllib.parse.urlencode({'service':'registry.docker.io','scope':f'repository:eduardofabri/{repo}:pull'})
  with urllib.request.urlopen('https://auth.docker.io/token?'+query,context=context,timeout=20) as response:token=json.load(response)['token']
  req=urllib.request.Request(f'https://registry-1.docker.io/v2/eduardofabri/{repo}/manifests/{tag}',headers={'Authorization':'Bearer '+token,'Accept':'application/vnd.oci.image.index.v1+json, application/vnd.docker.distribution.manifest.list.v2+json'})

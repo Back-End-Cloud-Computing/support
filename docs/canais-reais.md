@@ -12,7 +12,7 @@ deixa o caminho para trocar por APIs reais sem mexer no resto do serviço.
 
 ## Ativação do Twilio
 
-A implementação Java já está pronta; não é necessário criar outro adapter. Usar o [passo a passo de ativação e aceite](ativacao-twilio.md), com helper para criar o Secret e conferir a entrega real. A equipe confirmou em 28/10 que ainda não tem conta. A issue #12 permanece aberta até essa validação.
+A implementação Java já está pronta; não é necessário criar outro adapter. Usar o [passo a passo de ativação e aceite](ativacao-twilio.md), com helper para criar o Secret e conferir a entrega real. A conta trial foi criada em 28/10; o teste real e a vinculação de WhatsApp ainda precisam ser comprovados. A issue #12 permanece aberta.
 
 ## Cuidados
 
@@ -30,3 +30,5 @@ Para selecionar `twilio`, definir `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN` e o 
 WhatsApp suporta `TWILIO_WHATSAPP_CONTENT_SID` com variáveis `1=assunto` e `2=texto` para um template aprovado. Sem template usa Body, destinado ao sandbox/janela permitida da conversa. A conta, remetentes, template e autorização dos destinatários precisam ser configurados antes do teste real. Nenhuma mensagem real foi enviada: Eduardo informou que a equipe ainda não tem conta.
 
 O status `sent` de um adapter Twilio significa que a API aceitou a solicitação; não equivale a uma confirmação de entrega no aparelho. Confirmar entrega final exige callbacks/status do provedor.
+
+O modo SMS trial da versão 1.0.3 usa o modelo permitido sms_order_confirmation quando configurado; detalhes e limitações em [ativacao-twilio.md](ativacao-twilio.md). A criação da conta não comprova entrega real e não encerra a issue.

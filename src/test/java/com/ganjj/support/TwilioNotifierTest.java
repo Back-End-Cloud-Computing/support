@@ -26,12 +26,16 @@ class TwilioNotifierTest {
         });server.start();
         try {
             var base=URI.create("http://127.0.0.1:"+server.getAddress().getPort());
-            var sms=new TwilioNotifier("sms",account,"test-token","+15550000001","",base);
+            var sms=new TwilioNotifier("sms",account,"test-token","+15550000001","","",base);
             var message=new Notifier.Message("+15550000002","Pedido confirmado","Olá + & R$ 12,00");
             sms.send(message);
             assertThat(fields.get()).containsEntry("To","+15550000002").containsEntry("From","+15550000001").containsEntry("Body",message.text());
             assertThat(auth.get()).isEqualTo("Basic "+Base64.getEncoder().encodeToString((account+":test-token").getBytes(StandardCharsets.UTF_8)));
-            new TwilioNotifier("whatsapp",account,"test-token","whatsapp:+15550000001","HX"+"a".repeat(32),base).send(message);
+            new TwilioNotifier("sms",account,"test-token","+15550000001","","sms_order_confirmation",base).send(message);
+            assertThat(fields.get()).containsEntry("Body","sms_order_confirmation").containsEntry("To",message.recipient()).doesNotContainKey("ContentSid");
+            new TwilioNotifier("whatsapp",account,"test-token","whatsapp:+15550000001","","sms_order_confirmation",base).send(message);
+            assertThat(fields.get()).containsEntry("Body",message.text()).containsEntry("To","whatsapp:"+message.recipient());
+            new TwilioNotifier("whatsapp",account,"test-token","whatsapp:+15550000001","HX"+"a".repeat(32),"sms_order_confirmation",base).send(message);
             assertThat(fields.get()).containsEntry("To","whatsapp:+15550000002").containsKeys("ContentSid","ContentVariables").doesNotContainKey("Body");
             assertThat(fields.get().get("ContentVariables")).contains("Pedido confirmado","Olá");
             code.set(429);
@@ -45,5 +49,9 @@ class TwilioNotifierTest {
         assertThatThrownBy(()->new TwilioSettings(real,new MockEnvironment())).hasMessageContaining("TWILIO_ACCOUNT_SID");
         var env=new MockEnvironment().withProperty("TWILIO_ACCOUNT_SID","AC"+"a".repeat(32)).withProperty("TWILIO_AUTH_TOKEN","test-token").withProperty("TWILIO_SMS_FROM","+15550000001");
         assertThat(new TwilioSettings(real,env).notifier("sms").provider()).isEqualTo("twilio");
+        env.withProperty("TWILIO_SMS_TRIAL_TEMPLATE","sms_order_confirmation");
+        assertThatCode(()->new TwilioSettings(real,env)).doesNotThrowAnyException();
+        env.withProperty("TWILIO_SMS_TRIAL_TEMPLATE","unknown");
+        assertThatThrownBy(()->new TwilioSettings(real,env)).hasMessageContaining("TWILIO_SMS_TRIAL_TEMPLATE");
     }
 }
