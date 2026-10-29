@@ -1,6 +1,6 @@
 # Ativar Twilio e comprovar um envio real
 
-Os adapters estão implementados e testados contra HTTP simulado. A equipe ainda não possui conta (confirmado por Eduardo em 28/10/2026), portanto a issue #12 permanece aberta. Não registrar envio real antes de haver conta, remetentes habilitados, destinatários autorizados e recebimento confirmado.
+Os adapters estão implementados e testados contra HTTP simulado. Eduardo criou a conta trial em 28/10/2026. A issue #12 permanece aberta até comprovar os envios reais. Não registrar envio real antes de haver conta, remetentes habilitados, destinatários autorizados e recebimento confirmado.
 
 ## Configuração da conta
 
@@ -51,3 +51,36 @@ Esse trecho é um arquivo de override; as credenciais continuam somente no Secre
 - Registrar data, ambiente e resultados sanitizados; omitir tokens e números completos. Só então fechar #12.
 
 Para voltar ao laboratório sem envios externos, restaurar channels.sms=fake e channels.whatsapp=fake na release.
+
+## Modo SMS do trial (Console verificado em 28/10)
+
+A tela Try out SMS → Order Confirmations → API usa Body=sms_order_confirmation. Essa conta trial não permite pressupor que o texto livre do pedido será aceito. A versão 1.0.3 adiciona TWILIO_SMS_TRIAL_TEMPLATE=sms_order_confirmation (Helm: twilio.smsTrialTemplate) para selecionar explicitamente esse modelo no SMS. Valor vazio mantém o texto personalizado anterior. Esse ajuste não substitui o Body/ContentSid de WhatsApp.
+
+O modelo de trial comprova o transporte SMS real quando houver autorização de envio e confirmação, mas não comprova que detalhes personalizados do pedido chegaram ao aparelho. O teste automatizado prova a codificação correta e a separação entre canais; não foi enviado SMS real.
+
+O usuário fez pessoalmente o aceite dos termos WhatsApp, depois informou que enviou o código de vínculo, mas não recebeu confirmação. A última leitura do Console ainda mostrava a etapa de vinculação e logs vazios. Não marcar o WhatsApp como vinculado e não fechar a issue antes da prova. Desde a instrução noturna de Eduardo, qualquer nova solicitação de permissão deve ser negada e registrada, sem pedir aprovação durante a noite.
+
+
+## Retomada em 29/10 — WhatsApp trial
+
+O usuário corrigiu o formato do destinatário para coincidir com o perfil WhatsApp (sem o dígito adicional após o DDD). O Console agora registra uma mensagem Received e uma resposta automática Delivered. Isso comprova a troca pelo ambiente Twilio, mas ainda não um envio pela aplicação support.
+
+A API do trial exige o ContentSid de um template fornecido pelo Console e não permite variáveis de conteúdo personalizadas. Para esse caso, configurar TWILIO_WHATSAPP_TRIAL_MODE=true (Helm: twilio.whatsappTrialMode: true) e TWILIO_WHATSAPP_CONTENT_SID com o template exato exibido para a conta. O modo trial omite ContentVariables; sem ContentSid a aplicação falha na inicialização para evitar tentativas inválidas. O padrão false preserva o template personalizado de duas variáveis para contas que o permitem.
+
+O destinatário WhatsApp deve seguir o número do perfil confirmado pelo usuário. Não aplicar a mesma alteração ao número SMS automaticamente: canais podem usar representações distintas. Os valores e destinatários desta conta ficam somente no arquivo privado local, fora do Git.
+
+Referência: [API e limitações do trial WhatsApp](https://www.twilio.com/docs/usage/trials/try-out-whatsapp#using-the-messaging-api).
+
+## Execução local sem Docker
+
+O JSON privado não é lido automaticamente pelo Spring. O comando abaixo valida e carrega seus valores sem imprimir credenciais e sem consultar a API:
+
+```bash
+python3 scripts/twilio-local.py --config /caminho/privado/TWILIO-CONFIGURAR.json --channel sms
+```
+
+Para iniciar o JAR já compilado, acrescentar `--run` (Java 21+). A porta padrão é 8095, vinculada apenas a 127.0.0.1. O comando usa banco separado em `support-twilio-local/` ao lado do JSON, gera um segredo interno privado nesse diretório, desliga AMQP e deixa e-mail/WhatsApp em fake quando o canal escolhido é SMS. Assim, não consome eventos pendentes do laboratório Kubernetes. Não cria pedidos nem eventos e não envia mensagens por conta própria; chamadas posteriores ao endpoint com telefone poderão enviar pelo canal real escolhido.
+
+`--channel whatsapp` ou `--channel both` exige ContentSid válido no modo trial. Account SID (AC...) não é ContentSid (HX...). Sem o template, a execução desses modos falha antes de iniciar Java. O SMS pode ser validado/iniciado separadamente, sem inventar um template WhatsApp. O JSON precisa ter permissão 0600. Não compartilhar o arquivo nem o diretório de execução.
+
+O preflight só valida o formato/configuração local. Não comprova credenciais aceitas na API, provedor acessível, entrega real ou idempotência do transporte. O estado de entrega deve ser confirmado pelos critérios anteriores antes de fechar a issue.

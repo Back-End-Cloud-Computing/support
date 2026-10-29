@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-29",
+  "source": "application test executed by Eduardo in local Terminal; result read by agent",
+  "event_id": "b11eaad9-c9b2-4e9e-a191-56aaae966216",
+  "event_accepted": true,
+  "sms": [
+    {
+      "channel": "sms",
+      "provider": "twilio",
+      "status": "sent",
+      "attempts": 1
+    }
+  ],
+  "api_accepted": true,
+  "duplicate_rejected": true,
+  "handset_receipt_confirmed": true,
+  "whatsapp_app_delivery_verified": false,
+  "receipt_confirmation_source": "Eduardo confirmed receipt in this chat on 2026-10-29"
+}

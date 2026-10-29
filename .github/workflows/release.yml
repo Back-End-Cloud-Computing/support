@@ -5,7 +5,7 @@ on:
       tag:
         description: Immutable image tag (for example 1.2.0)
         required: true
-        default: '1.0.2'
+        default: '1.0.3'
 permissions:
   contents: read
 jobs:

@@ -1,29 +1,27 @@
 # Validação N2 — support Java/Spring Boot
 
-Atualizado em 25/10/2026. Evidências sanitizadas em `docs/evidence/2026-10-25/`.
+Atualizado em 29/10/2026. Guia operacional: [entrega-local.md](entrega-local.md). Os resultados abaixo distinguem as datas de execução e não significam revalidação contínua do ambiente inteiro.
 
-## Executado
+## Comprovado
 
-- Build, análise e testes locais; CI do PR de auditoria #20 verde; a revisão final também é verificada antes de integrar.
-- Imagem pública Docker Hub `eduardofabri/support:1.0.2`, com linux/amd64 e linux/arm64. Manifest inspecionado e acesso anônimo validado.
-- Instalação real por Helm em Minikube limpo (perfil `ganjj-n2`, Kubernetes 1.37.0), credenciais externas ao Git.
-- Prometheus coletando o serviço e dashboard Grafana importado por provisionamento. Captura versionada.
-- 12 testes sem falhas nem skips com RabbitMQ real: contrato HTTP, concorrência, SQLite, retry, Twilio com HTTP simulado e consumidor/DLQ/recriação de fila.
-- SMTP real no Mailpit em Minikube; histórico preservado após recriar o pod usando PVC.
-- Instalação Kustomize em namespace isolado, além da instalação Helm.
-- Gateway → order real (.NET) → SQL Server real → support → Mailpit: pedido criado, repetição idempotente preservou o mesmo pedido e e-mail do pedido confirmado. Carrinho e estoque foram fixtures explícitas; isso não é um checkout com todos os serviços reais.
-- Twilio preparado e testado sem contato com a API externa; o padrão continua fake. Eduardo informou que a equipe ainda não tem conta.
-- Consumidor RabbitMQ opcional pronto; o order continua publicando `OrderCreated` por HTTP.
+- Imagem pública eduardofabri/support:1.0.2 amd64/arm64, Helm/Kustomize em Minikube, SQLite/PVC, SMTP Mailpit e Prometheus/Grafana: evidências em evidence/2026-10-25/.
+- Publisher OrderCreated integrado ao outbox real do order, contrato espelhado e Secrets compartilhados no laboratório. Prova de 28/10: order e SQL Server reais → RabbitMQ → support → exatamente um e-mail, com fallback HTTP indisponível. Cart/Product eram fixtures. [Evidência](evidence/2026-10-28/order-created.json).
+- Runtime Twilio local iniciado por Eduardo: seis verificações HTTP aprovadas. [Evidência](evidence/2026-10-29/local-runtime.json).
+- SMS real enviado pela aplicação, aceito pela API, recebido no celular e repetição idempotente. [Evidência](evidence/2026-10-29/sms-api-test.json).
+- WhatsApp no Try out WhatsApp: mensagem Received e resposta automática Delivered. Sem prova de envio pela aplicação.
+- Carregador local do JSON privado: seis testes offline aprovados; configuração SMS validada sem imprimir valores. [Preflight](evidence/2026-10-29/twilio-local-preflight.json).
 
-## Pendências humanas / externas
+## Limites e pendências
 
-- Ensaio da apresentação com o grupo, com tempo por pessoa; roteiro pronto, mas não foi declarado um ensaio humano que não ocorreu.
-- Conta, remetentes e template/consentimento no Twilio para um teste de envio real. Integração AMQP do publisher do order permanece trabalho coordenado com o responsável pelo serviço.
+- Entrega local com trial, sem contratar upgrade. Falta ContentSid permitido disponível nesta configuração para WhatsApp iniciado pelo support. A resposta automática não substitui esse teste. [Escopo proposto para as issues](atualizacao-issues-trial.md).
+- Versão 1.0.3 publicada no Docker Hub com manifesto público AMD64/ARM64. [Evidência](evidence/2026-10-29/support-1.0.3-image.json). Código e documentação enviados à branch própria, aguardando revisão do PR.
+- Após autorização de acesso ampliado em 29/10, a suíte Java completa passou: 12 testes, zero falhas/erros/skips, com RabbitMQ real descartável. [Evidência](evidence/2026-10-29/full-validation.json). As validações anteriores de SMS/runtime foram executadas pelo usuário no Terminal, com resultados conferidos.
+- Ensaio com o grupo (#14) continua pendente e por último.
+- #11 e #17 tiveram critérios técnicos concluídos em 28/10. A necessidade de implementar o publisher no order e a ausência de conta Twilio eram pendências antigas já resolvidas.
 
-Auditoria de aceite: [acceptance-audit.json](evidence/2026-10-25/acceptance-audit.json). A issue #11 foi reaberta: consumidor testado não prova publisher no order. A versão 1.0.2 alinha o exchange `direct` ao contrato do grupo. Destino Docker Hub autorizado por Eduardo: `eduardofabri/support`, requisito da issue #7 atualizado.
+Auditoria detalhada: [auditoria-aceite.md](auditoria-aceite.md). Não apresentar Cart/Product como serviços reais na prova de checkout ou o DNS local como endpoint público.
 
-Imagem 1.0.2 validada em namespace separado `ganjj-acceptance-audit`; `ganjj-n2` anterior preservado. Evidência: [support-1.0.2-runtime.json](evidence/2026-10-25/support-1.0.2-runtime.json).
 
-## Atualização de 28/10/2026
+## Runtime da imagem publicada
 
-Publisher order.created integrado ao outbox real do order, contrato espelhado no caminho exigido e Secrets iguais configurados fora do Git. Teste real AMQP → SQLite → SMTP passou com fallback HTTP indisponível e um único e-mail, além de 55 testes .NET locais/CI. Ver docs/evidence/2026-10-28/order-created.json e order-tests.json. Isso resolve as pendências técnicas anteriores de #11/#17; permanece a necessidade de conta Twilio, compartilhamento privado das credenciais ADMIN pelo Eduardo e ensaio posterior com o grupo.
+A release support-audit do namespace local ganjj-acceptance-audit foi atualizada para a imagem 1.0.3 e o Helm concluiu como deployed (revisão 4). Seis checks HTTP passaram após a estabilização do cluster. Um pod descartável com SMS=twilio ficou Ready usando credenciais por Secret; nenhum evento foi enviado nele e ele foi removido após a validação. A primeira consulta HTTP extra expirou durante carga alta e não foi contada como aprovada. [Evidência completa](evidence/2026-10-29/support-1.0.3-runtime.json).

@@ -48,8 +48,12 @@ spec:
                   key: auth-token
             - name: TWILIO_SMS_FROM
               value: {{ .Values.twilio.smsFrom | quote }}
+            - name: TWILIO_SMS_TRIAL_TEMPLATE
+              value: {{ .Values.twilio.smsTrialTemplate | quote }}
             - name: TWILIO_WHATSAPP_FROM
               value: {{ .Values.twilio.whatsappFrom | quote }}
+            - name: TWILIO_WHATSAPP_TRIAL_MODE
+              value: {{ .Values.twilio.whatsappTrialMode | quote }}
             - name: TWILIO_WHATSAPP_CONTENT_SID
               value: {{ .Values.twilio.whatsappContentSid | quote }}
             {{- end }}
