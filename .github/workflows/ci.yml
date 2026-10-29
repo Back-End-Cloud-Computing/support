@@ -32,6 +32,8 @@ jobs:
           cache: maven
       - name: Compile, analyze and test
         run: ./mvnw -B -ntp verify
+      - name: Test local Twilio configuration loader
+        run: python3 -m unittest discover -s scripts -p test_twilio_local.py -v
       - run: docker build -t support:ci .
   publish-ghcr:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'

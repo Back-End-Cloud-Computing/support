@@ -70,3 +70,17 @@ A API do trial exige o ContentSid de um template fornecido pelo Console e não p
 O destinatário WhatsApp deve seguir o número do perfil confirmado pelo usuário. Não aplicar a mesma alteração ao número SMS automaticamente: canais podem usar representações distintas. Os valores e destinatários desta conta ficam somente no arquivo privado local, fora do Git.
 
 Referência: [API e limitações do trial WhatsApp](https://www.twilio.com/docs/usage/trials/try-out-whatsapp#using-the-messaging-api).
+
+## Execução local sem Docker
+
+O JSON privado não é lido automaticamente pelo Spring. O comando abaixo valida e carrega seus valores sem imprimir credenciais e sem consultar a API:
+
+```bash
+python3 scripts/twilio-local.py --config /caminho/privado/TWILIO-CONFIGURAR.json --channel sms
+```
+
+Para iniciar o JAR já compilado, acrescentar `--run` (Java 21+). A porta padrão é 8095, vinculada apenas a 127.0.0.1. O comando usa banco separado em `support-twilio-local/` ao lado do JSON, gera um segredo interno privado nesse diretório, desliga AMQP e deixa e-mail/WhatsApp em fake quando o canal escolhido é SMS. Assim, não consome eventos pendentes do laboratório Kubernetes. Não cria pedidos nem eventos e não envia mensagens por conta própria; chamadas posteriores ao endpoint com telefone poderão enviar pelo canal real escolhido.
+
+`--channel whatsapp` ou `--channel both` exige ContentSid válido no modo trial. Account SID (AC...) não é ContentSid (HX...). Sem o template, a execução desses modos falha antes de iniciar Java. O SMS pode ser validado/iniciado separadamente, sem inventar um template WhatsApp. O JSON precisa ter permissão 0600. Não compartilhar o arquivo nem o diretório de execução.
+
+O preflight só valida o formato/configuração local. Não comprova credenciais aceitas na API, provedor acessível, entrega real ou idempotência do transporte. O estado de entrega deve ser confirmado pelos critérios anteriores antes de fechar a issue.

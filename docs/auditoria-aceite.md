@@ -69,3 +69,14 @@ O [PR order #22](https://github.com/Back-End-Cloud-Computing/order/pull/22) adic
 Evidência atual: [order-created.json](evidence/2026-10-28/order-created.json) e [order-tests.json](evidence/2026-10-28/order-tests.json). As limitações anteriores de ausência de publisher/caminho documental referem-se ao estado de 25/26 e foram resolvidas nesta atualização. Cart/Product continuam fixtures; não foi alegado checkout completo com todos os serviços reais.
 
 Continuam abertas: os três ensaios (Eduardo pediu para fazê-los por último); authorization #8 (chave/ADMIN confirmados e arquivo privado entregue a Eduardo, que optou por compartilhar com promotion/gateway; aguarda conclusão do compartilhamento); support #12 (conta Twilio ainda inexistente, conforme confirmação de 28/10). O helper de Secret e o roteiro concreto de ativação estão preparados, mas não houve envio externo.
+
+
+## Atualização de 29/10 — estado atual
+
+Eduardo confirmou o compartilhamento privado do ADMIN com os responsáveis e decidiu manter o ambiente local. Isso resolve a pendência humana de compartilhamento registrada para authorization #8; o status remoto da issue ainda não foi atualizado nesta etapa por indisponibilidade de rede. Não adicionar exigência de hospedagem pública: authorization.ganjj-n2.svc é um endereço interno do laboratório.
+
+A conta Twilio existe, os remetentes foram identificados e o Auth Token foi preenchido em arquivo privado pelo usuário. O Console comprova Received e resposta automática Delivered para WhatsApp após corrigir o formato do destinatário. Isso ainda não é prova de envio da aplicação. Falta ContentSid permitido para o WhatsApp trial e os testes reais da aplicação para support #12. A biblioteca de templates do trial pede upgrade para templates próprios; nenhum upgrade foi autorizado ou executado.
+
+Os ajustes da versão 1.0.3 permanecem na branch própria codex/twilio-trial, sem publicação ou deploy. Docker, sockets locais e GitHub estão bloqueados neste sandbox. JAR, Helm e teste de configuração foram validados; a suíte HTTP mais recente ficou bloqueada por permissões de sockets, sem poder ser declarada aprovada. O carregador local do JSON permite preflight sem rede e execução manual isolada sem consumir a fila antiga.
+
+Os três ensaios humanos continuam pendentes e por último. Nenhuma issue remota foi fechada nesta atualização.

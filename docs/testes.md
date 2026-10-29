@@ -62,3 +62,5 @@ No cluster: mesma chamada com `kubectl port-forward svc/support 8090`. Checklist
 ## Como rodar
 
 `./mvnw verify` localmente e no CI. Cobertura não é meta; os casos acima são.
+
+O carregador da configuração privada local tem testes sem rede: `python3 -m unittest discover -s scripts -p test_twilio_local.py -v`. Eles verificam seleção independente dos canais, bloqueio de ContentSid ausente/incorreto, sigilo dos erros, permissões de arquivo e isolamento do banco/AMQP na inicialização. Não substituem os testes HTTP/SMTP/RabbitMQ nem os envios reais.
