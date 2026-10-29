@@ -41,3 +41,7 @@ Maven verify: 12 testes, zero falhas/erros/skips, com RabbitMQ real. Carregador 
 O workflow adicional de publicação Docker Hub não tem os secrets de Actions configurados. A imagem exigida pelas issues está pública e validada, publicada com a autenticação Docker local existente. Automatizar próximas publicações nesse registry não é critério pendente das issues auditadas; CI build/test e publicação GHCR na main já estão implementados. Não compartilhar credenciais para resolver uma exigência que não está no escopo.
 
 Não houve merge na main. Cart/Product na prova de checkout eram fixtures declaradas. Roteiros e testes técnicos não substituem ensaio com o grupo. Guia operacional: [entrega-local.md](entrega-local.md).
+
+## Contexto da apresentação
+
+A validação local descrita nesta matriz é de desenvolvimento/testes. A implantação compartilhada da N2 segue o [kit EKS do api-gateway](https://github.com/Back-End-Cloud-Computing/api-gateway/tree/main/eks), sem tornar cada serviço público. Esta revisão documental não executa infraestrutura AWS nem afirma que uma nova implantação EKS foi realizada pelo agente.

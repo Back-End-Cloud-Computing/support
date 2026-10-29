@@ -2,6 +2,12 @@
 
 Atualizado em 29/10/2026. Este guia pertence ao support. Visão geral no [README](../README.md), contrato em [contrato-api.md](contrato-api.md) e limitações do provedor em [canais-reais.md](canais-reais.md).
 
+## Desenvolvimento local e apresentação N2
+
+Este guia descreve o laboratório de desenvolvimento e validação local usado nesta etapa. A decisão temporária de trabalhar localmente não define o destino final da apresentação. A implantação compartilhada da N2 segue o [kit Amazon EKS do api-gateway](https://github.com/Back-End-Cloud-Computing/api-gateway/tree/main/eks), coordenado pelo grupo. O Gateway/Ingress é a entrada externa única; client, authorization e support continuam serviços internos, sem necessidade de uma URL pública por serviço.
+
+O kit aplica os manifests no namespace do contexto kubectl, default no fluxo padrão. DNS curto como authorization:8081 funciona para consumidores no mesmo namespace; authorization.default.svc:8081 identifica explicitamente o namespace default. O DNS com ganjj-n2 só vale no laboratório onde esse namespace foi criado/aplicado. Esta revisão é documental: não cria nem modifica infraestrutura AWS.
+
 ## Responsabilidade e dependências
 
 Serviço Java 21/Spring Boot com SQLite: recebe OrderCreated, persiste eventos/entregas e notifica por e-mail, SMS e WhatsApp. event_id fornece idempotência; o worker reprocessa eventos pendentes. Com SQLite, usar uma réplica.
@@ -15,7 +21,7 @@ No laboratório integrado, order grava o evento no outbox e publica no RabbitMQ;
 | Serviço padrão / Kubernetes | 8090, chamado internamente pelo order |
 | Laboratório isolado Twilio | 127.0.0.1:8095; banco separado, AMQP desligado, SMS Twilio e e-mail/WhatsApp fake |
 
-O laboratório Twilio isolado não substitui automaticamente a release Kubernetes nem recebe a fila antiga. O grupo decidiu permanecer local; não há URL pública nova. Não enviar tokens JWT ao support para autenticar o contrato interno: suas rotas internas usam o segredo x-internal-secret.
+O laboratório Twilio isolado não substitui automaticamente a release Kubernetes nem recebe a fila antiga. Esse laboratório permanece local para desenvolvimento; a apresentação compartilhada usa o kit EKS do api-gateway, com RabbitMQ/Mailpit e os canais definidos pela configuração do cluster. Não enviar tokens JWT ao support para autenticar o contrato interno: suas rotas internas usam o segredo x-internal-secret.
 
 ## Rodar o serviço padrão
 

@@ -1,6 +1,6 @@
 # Canais reais — entrega com Twilio trial
 
-Estado em 29/10/2026. Eduardo decidiu manter o ambiente local e usar o trial, sem contratar upgrade.
+Estado em 29/10/2026. Eduardo decidiu manter o laboratório Twilio local nesta etapa e usar o trial, sem contratar upgrade. Isso não define o destino da apresentação compartilhada: o kit EKS do grupo implanta o Support com RabbitMQ/Mailpit e configuração de canais própria.
 
 ## Resultado comprovado
 

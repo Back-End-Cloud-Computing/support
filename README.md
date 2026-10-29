@@ -26,7 +26,7 @@ O publisher real do `order` grava `OrderCreated` no outbox na mesma transação 
 
 ## Estado da entrega — 29/10/2026
 
-O ambiente continuará **local**, com **Twilio trial e sem upgrade pago**, por decisão de Eduardo.
+O laboratório de desenvolvimento e teste **Twilio trial, sem upgrade pago**, permanece **local** nesta etapa. A apresentação compartilhada da N2 segue o [kit Amazon EKS do api-gateway](https://github.com/Back-End-Cloud-Computing/api-gateway/tree/main/eks); esse laboratório não substitui o Support implantado no EKS, com RabbitMQ/Mailpit e os canais definidos pela configuração do cluster. O Gateway/Ingress é a entrada externa única.
 
 | Parte | Resultado comprovado |
 |---|---|
@@ -80,7 +80,7 @@ O JSON precisa de permissão 0600 e dos campos de credenciais/remetentes descrit
 
 ### Integração com os colegas no ambiente local
 
-`authorization.ganjj-n2.svc:8081` é DNS interno do namespace Kubernetes do laboratório, não um endereço público. Serviços em outro computador precisam executar authorization no próprio ambiente ou combinar acesso à rede de laboratório; `localhost` sempre aponta para a própria máquina. Não foi criada hospedagem pública.
+`authorization.ganjj-n2.svc:8081` é específico do laboratório Minikube cujo namespace foi criado como ganjj-n2. No kit EKS atual, usar `authorization:8081` no mesmo namespace, ou `authorization.default.svc:8081` no namespace default do fluxo padrão; outro namespace precisa ser explicitamente selecionado/criado. Esses endereços são internos. Serviços em outro computador precisam executar authorization no próprio ambiente ou combinar acesso à rede de laboratório; `localhost` sempre aponta para a própria máquina. Isso descreve o desenvolvimento local; na apresentação compartilhada EKS, o Gateway/Ingress continua sendo a entrada externa única.
 
 Eduardo confirmou que compartilhou as credenciais ADMIN de teste por canal privado com os responsáveis por promotion/gateway. Elas não devem ser adicionadas a este README, ao Git ou às issues. A atualização de status remoto está [preparada](docs/atualizacao-issues-trial.md).
 
