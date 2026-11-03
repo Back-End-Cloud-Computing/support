@@ -5,10 +5,12 @@ e-mail, SMS e WhatsApp. É o "microsserviço de suporte" exigido pelo enunciado 
 
 - **Dono:** Eduardo (`eduardofabrii`)
 - **Stack:** Java 21 + Spring Boot + SQLite, escolhida por Eduardo ([ADR 0006](docs/adr/0006-java-spring-boot.md)).
-- **Porta:** 8090 · **Sem Ingress** (só Service interno, chamado direto pelo `order`)
+- **Porta:** 8090 · **Sem Ingress** (consumo RabbitMQ; Service interno para HTTP alternativo)
 - **Prazo:** apresentação N2 em 10/11/2026
 
 ## Guia deste serviço
+
+[Preparação para apresentar](docs/apresentacao-n2.md) · [Ficha de registro do ensaio](docs/registro-ensaio.md). O roteiro contém fala/comandos; a ficha recebe data e tempos somente depois do ensaio real.
 
 [Aceite final das issues](docs/aceite-final.md): matriz de critérios, evidências e exceções combinadas.
 
@@ -22,6 +24,8 @@ order → outbox → RabbitMQ (order.created) → support → e-mail SMTP
                                                     └→ WhatsApp (fake ou Twilio)
 ```
 
+O caminho principal é `order` → outbox → exchange `ganjj.orders` (`direct`) → routing key `order.created` → fila `support.order-created` → consumidor Java/Spring Boot. O HTTP interno é uma alternativa para fallback, teste e depuração.
+
 O publisher real do `order` grava `OrderCreated` no outbox na mesma transação do pedido e publica no RabbitMQ. O support consome com idempotência por `event_id`; o HTTP interno permanece como fallback. O fluxo foi validado em 28/10 com order, SQL Server e RabbitMQ reais e um único e-mail no Mailpit ([evidência](docs/evidence/2026-10-28/order-created.json)). Cart/Product eram fixtures declaradas.
 
 ## Estado da entrega — 29/10/2026
@@ -34,11 +38,11 @@ O laboratório de desenvolvimento e teste **Twilio trial, sem upgrade pago**, pe
 | SMS pelo support | API Twilio aceitou o envio, Eduardo confirmou recebimento no celular e a repetição do evento retornou `duplicate:true` |
 | WhatsApp no Console | Mensagem `Received` e resposta automática `Delivered` no Try out WhatsApp |
 | WhatsApp pelo support | **Não comprovado**: falta ContentSid permitido disponível no fluxo trial desta conta/configuração |
-| Publicação | `eduardofabri/support:1.0.3` publicada e manifesto acessível sem login para AMD64/ARM64; código/documentação na branch própria, aguardando revisão do PR |
+| Publicação | `eduardofabri/support:1.0.3` publicada e manifesto acessível sem login para AMD64/ARM64; entrega técnica integrada pelo [PR #23](https://github.com/Back-End-Cloud-Computing/support/pull/23), com CI da main aprovada |
 
 Evidências: [runtime local](docs/evidence/2026-10-29/local-runtime.json) e [SMS real](docs/evidence/2026-10-29/sms-api-test.json). As execuções foram feitas por Eduardo no Terminal e os resultados sanitizados foram conferidos. `sent` no adapter significa aceitação pela API; neste teste, o recebimento do SMS foi confirmado separadamente pelo usuário.
 
-O trial fornece modelos de teste e exige upgrade para criar templates próprios. Isso não significa que todo teste WhatsApp em trial precise pagar. A resposta automática do Console não comprova envio WhatsApp iniciado pela aplicação. A [proposta de atualização da issue #12](docs/atualizacao-issues-trial.md) explicita esse limite; não marcar o critério original como aprovado sem revisar o aceite. Os três ensaios do grupo continuam pendentes.
+O trial fornece modelos de teste e exige upgrade para criar templates próprios. Isso não significa que todo teste WhatsApp em trial precise pagar. A resposta automática do Console não comprova envio WhatsApp iniciado pela aplicação. A [issue #12](https://github.com/Back-End-Cloud-Computing/support/issues/12) foi encerrada no aceite trial combinado, preservando esse limite; a [proposta anterior](docs/atualizacao-issues-trial.md) permanece como histórico. Os três ensaios do grupo continuam pendentes.
 
 ## Documentação
 
@@ -51,7 +55,7 @@ Comece por [`docs/README.md`](docs/README.md).
 | [Contrato](docs/contrato-api.md) | Endpoint e payload que o `order` precisa respeitar |
 | [Testes](docs/testes.md) | Casos definidos antes do código (TDD) |
 | [Canais reais](docs/canais-reais.md) | Como trocar SMS e WhatsApp simulados por APIs reais |
-| [RabbitMQ](docs/rabbitmq.md) | Fila, consumidor e configuração |
+| [RabbitMQ](docs/rabbitmq.md) | Transporte principal implementado: exchange, fila, ack, DLQ e recuperação |
 | [Fases](docs/fases.md) | Entregas com datas |
 | [Integração](docs/integration-issues.md) | O que depende dos outros serviços |
 | [Roteiro N2](docs/apresentacao-n2.md) | O que mostrar na apresentação |
@@ -82,7 +86,7 @@ O JSON precisa de permissão 0600 e dos campos de credenciais/remetentes descrit
 
 `authorization.ganjj-n2.svc:8081` é específico do laboratório Minikube cujo namespace foi criado como ganjj-n2. No kit EKS atual, usar `authorization:8081` no mesmo namespace, ou `authorization.default.svc:8081` no namespace default do fluxo padrão; outro namespace precisa ser explicitamente selecionado/criado. Esses endereços são internos. Serviços em outro computador precisam executar authorization no próprio ambiente ou combinar acesso à rede de laboratório; `localhost` sempre aponta para a própria máquina. Isso descreve o desenvolvimento local; na apresentação compartilhada EKS, o Gateway/Ingress continua sendo a entrada externa única.
 
-Eduardo confirmou que compartilhou as credenciais ADMIN de teste por canal privado com os responsáveis por promotion/gateway. Elas não devem ser adicionadas a este README, ao Git ou às issues. A atualização de status remoto está [preparada](docs/atualizacao-issues-trial.md).
+Eduardo confirmou que compartilhou as credenciais ADMIN de teste por canal privado com os responsáveis por promotion/gateway. Elas não devem ser adicionadas a este README, ao Git ou às issues. A [issue authorization #8](https://github.com/Back-End-Cloud-Computing/authorization/issues/8) está encerrada; o [texto anterior](docs/atualizacao-issues-trial.md) permanece como histórico.
 
 ## Convenções
 
