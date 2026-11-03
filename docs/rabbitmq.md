@@ -1,51 +1,46 @@
-# RabbitMQ — consumidor e integração pendente
+# RabbitMQ — transporte principal implementado
 
-O suporte implementa o consumidor. O order agora publica OrderCreated por outbox quando RabbitMq:Enabled=true; HTTP interno permanece como fallback ([ADR 0002](adr/0002-http-antes-de-rabbitmq.md)). Este documento fixa o desenho para que a
-troca seja mecânica quando os demais repos terminarem.
+O `order` grava `OrderCreated` no outbox na mesma transação do pedido e publica no RabbitMQ quando `RabbitMq:Enabled=true`. O Support Java 21/Spring Boot consome `order.created`; o HTTP interno permanece como alternativa para fallback, teste e depuração. A decisão de começar por HTTP foi [superada em 28/10](adr/0002-http-antes-de-rabbitmq.md).
 
-## Desenho
+## Contrato e topologia
 
 | Item | Valor |
 |---|---|
-| Exchange | `ganjj.orders` (tipo `direct`, durável; compatível com `order/docs/INTEGRATION-CONTRACTS.md` §9) |
+| Exchange | `ganjj.orders`, tipo `direct`, durável |
 | Routing key | `order.created` |
-| Fila do suporte | `support.order-created` (durável), vinculada a `order.created` |
-| Dead letter | `support.order-created.dlq`, após 3 falhas de processamento |
-| Corpo | o **mesmo JSON** do [contrato HTTP](contrato-api.md) (`OrderCreated`) |
-| Publicador | `order` (quando o pedido é criado) |
-| Consumidor | `support`, em worker Java próprio dentro do mesmo processo |
+| Fila | `support.order-created`, durável e vinculada à routing key |
+| Dead letter | `support.order-created.dlq`, durável, pelo exchange padrão |
+| Corpo | JSON `OrderCreated`, igual ao [contrato HTTP](contrato-api.md) |
+| Publicador | `order`, por outbox transacional |
+| Consumidor | Support Java/Spring Boot, no mesmo processo da API |
+| Ativação | `AMQP_URL` não vazia, fornecida por Secret no Kubernetes |
 
-## Comportamento do consumidor
+O Support declara exchange, filas e binding por `RabbitAdmin`. Sem `AMQP_URL`, o consumidor não é criado; o endpoint HTTP continua disponível. A implementação está em [RabbitConfiguration.java](../src/main/java/com/ganjj/support/RabbitConfiguration.java).
 
-1. Recebe a mensagem e chama o **mesmo tratamento** do endpoint HTTP (validação, idempotência por `event_id`, despacho).
-2. `ack` depois de gravar o evento em `events` (a entrega aos canais continua assíncrona).
-3. Mensagem inválida: `nack` sem reenfileirar (vai para a DLQ).
-4. Falha de infraestrutura (banco indisponível): três tentativas locais, depois rejeição para DLQ.
-5. Duplicata (`event_id` já visto): `ack` sem reenviar.
+## Aceitação, ack e DLQ
 
-Em K8s: variável `AMQP_URL` em Secret; se vazia, o consumidor não sobe e o serviço funciona só por HTTP.
+1. O listener usa ack manual e prefetch 1. Valida o JSON e o contrato antes da aceitação.
+2. HTTP e AMQP chamam `NotificationAcceptance`, com persistência e idempotência por `event_id`.
+3. O `ack` ocorre depois de persistir o evento no SQLite. Os envios aos canais são assíncronos; ack não comprova recebimento de e-mail, SMS ou WhatsApp.
+4. JSON/payload inválido recebe `basicReject` sem reenfileirar e vai diretamente para a DLQ.
+5. Falha SQL recebe até três tentativas locais, com esperas de 100 ms e 200 ms. Esgotadas as tentativas, a mensagem é rejeitada sem reenfileirar e vai para a DLQ.
+6. Duplicata já persistida recebe ack sem reenviar. Se a conexão cair antes do ack, pode haver reentrega: a idempotência protege a aceitação duplicada.
 
-## Por que só depois
+## Se o broker ou o consumidor ficar indisponível
 
-- O publisher do order foi implementado no PR #22, reutilizando o outbox transacional existente.
-- O contrato do corpo já é o final, então a mudança de transporte não altera o payload.
-- O endpoint HTTP permanece, para teste e depuração.
+O container Spring AMQP tenta restabelecer o consumo quando a conexão volta; a recuperação automática do cliente RabbitMQ está desativada para deixar esse controle com o Spring. `RabbitAdmin` declara novamente a topologia quando necessário e o listener permite iniciar sem a fila disponível (`missingQueuesFatal=false`). A API HTTP e o dispatcher de eventos já persistidos não dependem de uma conexão AMQP para trabalhar.
 
-## Checklist para ativar
+Com o broker ativo e a fila existente, mensagens aguardam o consumidor. Durante indisponibilidade do broker, o publisher depende do outbox/retry do Order e de sua configuração de fallback HTTP. O Support não publica nem recupera o outbox do Order. A prova de 28/10 valida o fluxo AMQP, não uma simulação de queda e recuperação completa do broker.
 
-- [x] Broker RabbitMQ no cluster (um Deployment e um Service, definido pela equipe).
-- [x] `order` publicando `order.created` com o payload do contrato.
-- [x] Consumidor implementado e testado com o broker (teste de integração com container).
-- [x] Métrica `support_events_total{result}` igual nos dois transportes.
+Filas/exchange duráveis não garantem sobrevivência à perda do armazenamento do broker. O broker opcional de laboratório em `k8s/rabbitmq.yaml` tem armazenamento efêmero; o chart o ativa por `rabbitmq.enabled=true`. O kit EKS compartilhado também transforma PVCs em `emptyDir`: não apresentar isso como persistência após substituição do Pod. As provas de persistência SQLite com PVC pertencem ao laboratório Minikube.
 
-## Implementado e testado em 25/10/2026
+## Evidências e validação
 
-O consumidor está pronto e é ativado por `AMQP_URL`. HTTP e AMQP usam `NotificationAcceptance`, com o mesmo contrato e idempotência. Mensagens inválidas vão diretamente à DLQ; falhas de armazenamento recebem três tentativas locais (100 ms e 200 ms entre elas) e depois DLQ. O ack ocorre somente após persistir o evento; o dispatcher continua assíncrono.
+- O [teste de consumidor](../src/test/java/com/ganjj/support/RabbitConsumerTest.java) usa RabbitMQ real e cobre persistência, duplicata, invalidez, falha de armazenamento e recriação da fila. A CI fornece o broker para esse teste.
+- Em 28/10, o publisher real do Order foi integrado pelo [PR order #22](https://github.com/Back-End-Cloud-Computing/order/pull/22). O fallback HTTP foi apontado para uma porta indisponível; mesmo assim o pedido gerou um único e-mail via RabbitMQ. [Evidência](evidence/2026-10-28/order-created.json). Cart/Product eram fixtures declaradas.
+- Em 29/10, a suíte completa passou com 12 testes, zero falhas/erros/skips, incluindo RabbitMQ real. [Resultado](evidence/2026-10-29/full-validation.json).
+- Essas evidências são históricas do laboratório; não comprovam uma nova execução no EKS nem o ensaio humano.
 
-A fila/exchange são declaradas por RabbitAdmin e recuperadas quando necessário. A suíte com RabbitMQ real prova persistência, duplicata, invalidez, falha de armazenamento e recriação da fila. CI executa esse teste com serviço RabbitMQ. `k8s/rabbitmq.yaml` fornece um broker de laboratório opcional; o chart usa `rabbitmq.enabled=true` quando desejado. O broker de laboratório tem armazenamento efêmero: não é implantação de produção.
+## Compatibilidade do exchange
 
-Em 28/10, o publisher real do order foi integrado por PR #22: grava OrderCreated na mesma transação SQL e usa a routing key order.created. O fallback HTTP foi apontado para uma porta indisponível no teste isolado; mesmo assim o pedido gerou um único e-mail via RabbitMQ. Evidência: [order-created.json](evidence/2026-10-28/order-created.json). Cart/Product permanecem fixtures explícitas.
-
-## Compatibilidade do exchange (auditoria de aceite)
-
-A versão 1.0.2 corrige `topic` para `direct`, conforme o contrato já publicado por order/promotion. O teste real declara primeiro o exchange `direct`, garantindo que o support possa compartilhar o broker sem `PRECONDITION_FAILED`. Em um laboratório antigo com exchange `topic`, pare os consumidores, drene as filas e migre o exchange antes de atualizar; não apague um exchange com tráfego real. O publisher e o teste de ponta a ponta AMQP foram concluídos em 28/10; a issue #11 atende ao aceite.
+A versão 1.0.2 corrigiu `topic` para `direct`, conforme o contrato compartilhado. O teste declara primeiro o exchange `direct`, evitando incompatibilidade silenciosa. Em laboratório antigo com exchange `topic`, planeje a migração com o grupo: drene filas e preserve dados antes de trocar a topologia. Não apague exchange com tráfego real. A integração da issue #11 já foi concluída; não é uma implementação futura.

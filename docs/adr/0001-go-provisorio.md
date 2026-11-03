@@ -3,7 +3,9 @@
 Status: Substituído por [ADR 0006](0006-java-spring-boot.md) em 24/10/2026
 Data: 2026-10-19
 
-## Contexto
+**Stack vigente:** Java 21 + Spring Boot + SQLite, conforme ADR 0006. O texto abaixo preserva a decisão provisória de 19/10 e não descreve a implementação atual.
+
+## Contexto histórico
 
 O suporte é do Eduardo, que já mantém o `client` (Go) e o `authorization` (Java). O professor aceita qualquer
 stack. O Lucas precisava deixar estrutura e testes definidos antes de o Eduardo decidir.
