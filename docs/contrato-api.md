@@ -3,6 +3,8 @@
 Para quem chama o serviço (hoje o `order`). Rede interna do cluster: `http://support:8090`. Fora do API Gateway
 e sem Ingress. Todas as rotas `/internal/*` exigem o cabeçalho `x-internal-secret`.
 
+Contrato legível por ferramentas: [OpenAPI 3.1](openapi/support-service.v1.yaml).
+
 ## `POST /internal/notifications`
 
 Cabeçalhos: `x-internal-secret` (obrigatório), `Content-Type: application/json`, `X-Correlation-ID` (opcional).
