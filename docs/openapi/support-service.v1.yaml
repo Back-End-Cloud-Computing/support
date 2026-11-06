@@ -1,0 +1,285 @@
+openapi: 3.1.0
+info:
+  title: GANJJ Support Service API
+  version: 1.0.0
+  description: >-
+    Internal API used to accept OrderCreated notifications and inspect their
+    delivery status. The service has no public Ingress; callers use the
+    Kubernetes ClusterIP service and authenticate internal routes with a shared
+    secret. RabbitMQ is the primary transport for OrderCreated, while this HTTP
+    contract remains available as a fallback and for diagnostics.
+servers:
+  - url: http://support:8090
+    description: Kubernetes internal service
+tags:
+  - name: Notifications
+  - name: Operations
+paths:
+  /internal/notifications:
+    post:
+      tags: [Notifications]
+      summary: Accept an OrderCreated notification
+      operationId: acceptNotification
+      security:
+        - internalSecret: []
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderCreated'
+      responses:
+        '202':
+          description: Notification accepted or already processed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcceptedNotification'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '503':
+          $ref: '#/components/responses/StorageUnavailable'
+
+  /internal/notifications/{eventId}:
+    get:
+      tags: [Notifications]
+      summary: Inspect deliveries created for an event
+      operationId: getNotification
+      security:
+        - internalSecret: []
+      parameters:
+        - name: eventId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Event and its current channel deliveries
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationStatus'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '503':
+          $ref: '#/components/responses/StorageUnavailable'
+
+  /health:
+    get:
+      tags: [Operations]
+      summary: Liveness check
+      operationId: health
+      security: []
+      responses:
+        '200':
+          description: Process is running
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /health/ready:
+    get:
+      tags: [Operations]
+      summary: Readiness check including SQLite
+      operationId: readiness
+      security: []
+      responses:
+        '200':
+          description: SQLite is available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+        '503':
+          description: SQLite is unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /metrics:
+    get:
+      tags: [Operations]
+      summary: Prometheus metrics
+      operationId: metrics
+      security: []
+      responses:
+        '200':
+          description: Prometheus text exposition format
+          content:
+            text/plain:
+              schema:
+                type: string
+
+components:
+  securitySchemes:
+    internalSecret:
+      type: apiKey
+      in: header
+      name: x-internal-secret
+
+  parameters:
+    CorrelationId:
+      name: X-Correlation-ID
+      in: header
+      required: false
+      schema:
+        type: string
+        maxLength: 256
+
+  responses:
+    BadRequest:
+      description: Invalid JSON or invalid event field
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: Internal secret is absent or invalid
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Event was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    StorageUnavailable:
+      description: SQLite is unavailable
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  schemas:
+    OrderCreated:
+      type: object
+      required:
+        - event_id
+        - event_type
+        - occurred_at
+        - order_id
+        - order_code
+        - customer_id
+        - customer_email
+        - total
+        - currency
+      properties:
+        event_id:
+          type: string
+          format: uuid
+          maxLength: 36
+        event_type:
+          type: string
+          const: OrderCreated
+        occurred_at:
+          type: string
+          format: date-time
+        order_id:
+          type: string
+          minLength: 1
+          maxLength: 256
+        order_code:
+          type: string
+          minLength: 1
+          maxLength: 1000
+        customer_id:
+          type: string
+          minLength: 1
+          maxLength: 256
+        customer_email:
+          type: string
+          format: email
+          maxLength: 254
+        customer_phone:
+          type: [string, 'null']
+          pattern: '^\+[1-9][0-9]{7,14}$'
+        total:
+          type: number
+          minimum: 0
+        currency:
+          type: string
+          const: BRL
+        correlation_id:
+          type: [string, 'null']
+          maxLength: 256
+      example:
+        event_id: 0b6f3a3e-8d0e-4c34-9d36-4f0f2f5b9a11
+        event_type: OrderCreated
+        occurred_at: '2026-10-19T14:30:00Z'
+        order_id: '7'
+        order_code: GANJJ-000007
+        customer_id: '42'
+        customer_email: cliente@example.com
+        customer_phone: '+5541999999999'
+        total: 1234.56
+        currency: BRL
+        correlation_id: 6a2f41a5-c3f9-4d0f-a8cb-0a6e8a8e1a11
+
+    AcceptedNotification:
+      type: object
+      required: [status, event_id, duplicate]
+      properties:
+        status:
+          type: string
+          const: accepted
+        event_id:
+          type: string
+          format: uuid
+        duplicate:
+          type: boolean
+
+    NotificationStatus:
+      type: object
+      required: [event_id, deliveries]
+      properties:
+        event_id:
+          type: string
+        deliveries:
+          type: array
+          items:
+            $ref: '#/components/schemas/Delivery'
+
+    Delivery:
+      type: object
+      required: [channel, status, provider, attempts]
+      properties:
+        channel:
+          type: string
+          enum: [email, sms, whatsapp]
+        status:
+          type: string
+          enum: [sent, skipped, failed]
+        provider:
+          type: string
+        attempts:
+          type: integer
+          minimum: 0
+          maximum: 3
+        error:
+          type: [string, 'null']
+
+    HealthResponse:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [ok, unavailable]
+
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
